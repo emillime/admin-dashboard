@@ -1,8 +1,12 @@
+import { spawn } from 'child_process';
 import svelte from "rollup-plugin-svelte";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import livereload from "rollup-plugin-livereload";
-import { terser } from "rollup-plugin-terser";
+import terser from '@rollup/plugin-terser';
+import typescript from '@rollup/plugin-typescript';
+import sveltePreprocess from 'svelte-preprocess';
+
 // library that helps you import in svelte with
 // absolute paths, instead of
 // import Component  from "../../../../components/Component.svelte";
@@ -129,7 +133,7 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      server = require("child_process").spawn(
+      server = spawn(
         "npm",
         ["run", "start", "--", "--dev"],
         {
@@ -145,7 +149,7 @@ function serve() {
 }
 
 export default {
-  input: "src/main.js",
+  input: "src/main.ts",
   output: {
     sourcemap: true,
     format: "iife",
