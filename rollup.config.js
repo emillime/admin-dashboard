@@ -161,6 +161,7 @@ export default {
       css: (css) => {
         css.write("bundle.css");
       },
+			preprocess: sveltePreprocess(),
     }),
 
     // If you have external dependencies installed from
@@ -173,6 +174,7 @@ export default {
       dedupe: ["svelte"],
     }),
     commonjs(),
+		typescript({ sourceMap: !production }),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
