@@ -18,7 +18,7 @@
 </script>
 
 <div>
-  <Sidebar location={location}/>
+  <Sidebar {location}/>
   <div class="relative md:ml-64 bg-blueGray-100">
     <AdminNavbar />
     <HeaderStats />

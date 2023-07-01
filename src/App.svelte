@@ -13,11 +13,15 @@
   import Profile from "./views/Profile.svelte";
 
   export let url = "";
+
+
 </script>
 
-<Router url="{url}">
+<Router {url}>
   <!-- admin layout -->
-  <Route path="admin/*admin" component="{Admin}" />
+  <Route path="admin/*admin" let:location>
+    <Admin {location} />
+  </Route>
   <!-- auth layout -->
   <Route path="auth/*auth" component="{Auth}" />
   <!-- no layout pages -->

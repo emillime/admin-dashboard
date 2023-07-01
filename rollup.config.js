@@ -28,25 +28,7 @@ const aliases = alias({
   ],
 });
 
-const indexTemplate = `<!--
-
-=========================================================
-* Notus Svelte - v1.1.0 based on Tailwind Starter Kit by Creative Tim
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/notus-svelte
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/notus-svelte/blob/main/LICENSE.md)
-
-* Tailwind Starter Kit Page: https://www.creative-tim.com/learning-lab/tailwind-starter-kit/presentation
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
+const indexTemplate = `
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -61,7 +43,7 @@ const indexTemplate = `<!--
       href="/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css"
     />
     <link rel="stylesheet" href="/assets/styles/tailwind.css" />
-    <title>Notus Svelte</title>
+    <title>Admin</title>
 
     <script>
       if (process === undefined) {
@@ -73,10 +55,8 @@ const indexTemplate = `<!--
 
   <body class="text-blueGray-700 antialiased">
     <noscript>
-      <strong
-        >We're sorry but notus-svelte doesn't work properly without
-        JavaScript enabled. Please enable it to continue.</strong
-      >
+      <strong>We're sorry but this site doesn't work properly without
+        JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
   </body>
