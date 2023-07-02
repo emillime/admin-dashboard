@@ -54,33 +54,9 @@ if (production) {
       .replace("<<process-env-status>>", "PRODUCTION: true")
       .replace(/<<live-preview-link>>/g, "/admin-dashboard")
   );
-  fs.writeFileSync(
-    "./public/200.html",
-    indexTemplate
-      .replace("<<process-env-status>>", "PRODUCTION: true")
-      .replace(/<<live-preview-link>>/g, "/admin-dashboard")
-  );
-  fs.writeFileSync(
-    "./public/404.html",
-    indexTemplate
-      .replace("<<process-env-status>>", "PRODUCTION: true")
-      .replace(/<<live-preview-link>>/g, "/admin-dashboard")
-  );
 } else {
   fs.writeFileSync(
     "./public/index.html",
-    indexTemplate
-      .replace("<<process-env-status>>", "")
-      .replace(/<<live-preview-link>>/g, "")
-  );
-  fs.writeFileSync(
-    "./public/200.html",
-    indexTemplate
-      .replace("<<process-env-status>>", "")
-      .replace(/<<live-preview-link>>/g, "")
-  );
-  fs.writeFileSync(
-    "./public/404.html",
     indexTemplate
       .replace("<<process-env-status>>", "")
       .replace(/<<live-preview-link>>/g, "")
