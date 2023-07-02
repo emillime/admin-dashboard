@@ -214,32 +214,32 @@
         </p>
         <div class="block pb-6">
           <span
-            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white uppercase last:mr-0 mr-2 mt-2"
+            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white last:mr-0 mr-2 mt-2"
           >
             Buttons
           </span>
           <span
-            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white uppercase last:mr-0 mr-2 mt-2"
+            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white last:mr-0 mr-2 mt-2"
           >
             Inputs
           </span>
           <span
-            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white uppercase last:mr-0 mr-2 mt-2"
+            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white last:mr-0 mr-2 mt-2"
           >
             Labels
           </span>
           <span
-            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white uppercase last:mr-0 mr-2 mt-2"
+            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white last:mr-0 mr-2 mt-2"
           >
             Menus
           </span>
           <span
-            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white uppercase last:mr-0 mr-2 mt-2"
+            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white last:mr-0 mr-2 mt-2"
           >
             Navbars
           </span>
           <span
-            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white uppercase last:mr-0 mr-2 mt-2"
+            class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-slate-500 bg-white last:mr-0 mr-2 mt-2"
           >
             Pagination
           </span>
