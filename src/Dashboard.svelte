@@ -4,6 +4,7 @@
   import { authorize, getAllBookings } from "./api/api";
   import CardLineChart from "./components/Cards/CardLineChart.svelte";
   import { formatChartData } from "./utils/chartHelper";
+  import { tokenStore } from "./utils/tokenStore";
 
   let chartData;
 
@@ -21,10 +22,13 @@
 
   onMount(async () => {
     // Fetch data from API
-    const token = await authorize(
+    /*const token = await authorize(
       "email",
       "password"
-    );
+    );*/
+
+    const token = $tokenStore;
+    console.log(token);
 
     const bookings = await getAllBookings(token, "2023-04-05T00:00:19.735Z");
     console.log(bookings);
@@ -101,9 +105,6 @@
       }*/
   });
 </script>
-
-<main>
-  <h1>Test</h1>
   <CardLineChart bind:data={chartData} />
   <!--
   <div class="chart-container">
@@ -113,5 +114,4 @@
     <div id="barchart" />
   </div>
    Add other chart containers and components as needed -->
-</main>
 

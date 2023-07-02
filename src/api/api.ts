@@ -1,3 +1,5 @@
+import { writable } from "svelte/store";
+
 const BASE_URL = 'https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production';
 
 export async function authorize(email: string, password: string): Promise<string> {
@@ -8,12 +10,14 @@ export async function authorize(email: string, password: string): Promise<string
     },
     body: JSON.stringify({ email, password }),
   });
+  console.log(response);
 
   if (!response.ok) {
     throw new Error('Failed to authorize');
   }
 
   const data = await response.json();
+  console.log(data);
 
   if (data.msg != 'authorized') {
     throw new Error('Failed to authorize');
@@ -69,4 +73,3 @@ export async function getAllBookings(token: string, startTime: string, endTime?:
 
   return allBookings;
 }
-

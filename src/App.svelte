@@ -1,31 +1,27 @@
 <!-- App.svelte -->
-<script>
-  import { Router, Route } from "svelte-routing";
+<script lang="ts">
+  import { Router, Route, navigate } from "svelte-routing";
 
   // Admin Layout
   import Admin from "./layouts/Admin.svelte";
   // Auth Layout
   import Auth from "./layouts/Auth.svelte";
-
-  // No Layout Pages
-  import Index from "./views/Index.svelte";
-  import Landing from "./views/Landing.svelte";
-  import Profile from "./views/Profile.svelte";
+  import PrivateRoute from "./routing/PrivateRoute.svelte";
+  import { tokenStore } from "./utils/tokenStore";
 
   export let url = "";
 
-
+  if ($tokenStore != null) {
+    navigate("/dashboard");
+  }
 </script>
 
 <Router {url}>
   <!-- admin layout -->
-  <Route path="admin/*admin" let:location>
-    <Admin {location} />
+  <PrivateRoute path="dashboard">
+    <Admin />
+  </PrivateRoute>
+  <Route path="/" let:location>
+    <Auth {location} />
   </Route>
-  <!-- auth layout -->
-  <Route path="auth/*auth" component="{Auth}" />
-  <!-- no layout pages -->
-  <Route path="landing" component="{Landing}" />
-  <Route path="profile" component="{Profile}" />
-  <Route path="/" component="{Index}" />
 </Router>

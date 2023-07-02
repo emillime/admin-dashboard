@@ -8,25 +8,9 @@ import css from 'rollup-plugin-css-only';
 import typescript from '@rollup/plugin-typescript';
 import sveltePreprocess from 'svelte-preprocess';
 
-// library that helps you import in svelte with
-// absolute paths, instead of
-// import Component  from "../../../../components/Component.svelte";
-// we will be able to say
-// import Component from "components/Component.svelte";
-import alias from "@rollup/plugin-alias";
 import fs from "fs";
 
 const production = !process.env.ROLLUP_WATCH;
-
-// configure aliases for absolute imports
-const aliases = alias({
-  resolve: [".svelte", ".js"], //optional, by default this will just look for .js files or folders
-  entries: [
-    { find: "components", replacement: "src/components" },
-    { find: "views", replacement: "src/views" },
-    { find: "assets", replacement: "src/assets" },
-  ],
-});
 
 const indexTemplate = `
 <!DOCTYPE html>
@@ -53,7 +37,7 @@ const indexTemplate = `
     <script defer src="<<live-preview-link>>/build/bundle.js"></script>
   </head>
 
-  <body class="text-blueGray-700 antialiased">
+  <body class="text-slate-700 antialiased">
     <noscript>
       <strong>We're sorry but this site doesn't work properly without
         JavaScript enabled. Please enable it to continue.</strong>
@@ -68,19 +52,19 @@ if (production) {
     "./public/index.html",
     indexTemplate
       .replace("<<process-env-status>>", "PRODUCTION: true")
-      .replace(/<<live-preview-link>>/g, "/notus-svelte")
+      .replace(/<<live-preview-link>>/g, "/admin-dashboard")
   );
   fs.writeFileSync(
     "./public/200.html",
     indexTemplate
       .replace("<<process-env-status>>", "PRODUCTION: true")
-      .replace(/<<live-preview-link>>/g, "/notus-svelte")
+      .replace(/<<live-preview-link>>/g, "/admin-dashboard")
   );
   fs.writeFileSync(
     "./public/404.html",
     indexTemplate
       .replace("<<process-env-status>>", "PRODUCTION: true")
-      .replace(/<<live-preview-link>>/g, "/notus-svelte")
+      .replace(/<<live-preview-link>>/g, "/admin-dashboard")
   );
 } else {
   fs.writeFileSync(
@@ -131,7 +115,7 @@ function serve() {
 export default {
   input: "src/main.ts",
   output: {
-    sourcemap: true,
+    sourcemap: !production,
     format: "iife",
     name: "app",
     file: "public/build/bundle.js",
@@ -177,13 +161,6 @@ export default {
     // If we're building for production (npm run build
     // instead of npm run dev), minify
     production && terser(),
-
-    // for absolut imports
-    // i.e., instead of
-    // import Component  from "../../../../components/Component.svelte";
-    // we will be able to say
-    // import Component from "components/Component.svelte";
-    aliases,
   ],
   watch: {
     clearScreen: false,

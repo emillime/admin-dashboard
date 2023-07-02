@@ -1,21 +1,12 @@
-const plugin = require("tailwindcss/plugin");
-const colors = require("tailwindcss/colors");
+import plugin from "tailwindcss/plugin";
+import colors from "tailwindcss/colors";
 
-module.exports = {
-  purge: {
-    enabled: true,
-    content: [
-      "./**/*.html",
-      "./*.html",
-      "./**/*.js",
-      "./*.js",
-      "./**/*.svelte",
-      "./*.svelte",
-    ],
-    options: {
-      safelist: [],
-    },
-  },
+const production = !process.env.ROLLUP_WATCH;
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  enabled: production,
+  content: ['./**/*.{html,js,svelte,ts}', './*.{html,js,svelte,ts}'],
   theme: {
     colors: {
       ...colors,
@@ -31,8 +22,8 @@ module.exports = {
         "80": ".8",
       },
       zIndex: {
-        "2": 2,
-        "3": 3,
+        "2": "2",
+        "3": "3",
       },
       inset: {
         "-100": "-100%",
@@ -138,5 +129,5 @@ module.exports = {
         },
       ]);
     }),
-  ],
+  ]
 };
