@@ -152,10 +152,10 @@ type BookingCustomerInfo = {
       updatedAt: string;
       __v: number;
     };
-    startTime: string;
-    startTimeLocal: string;
-    endTime: string;
-    endTimeLocal: string;
+    startTime: Date;
+    startTimeLocal: Date;
+    endTime: Date;
+    endTimeLocal: Date;
     codeSent: boolean;
     reminderSent: boolean;
     slotError: boolean;
@@ -164,3 +164,14 @@ type BookingCustomerInfo = {
     __v: number;
     code: string;
   };
+
+  type Slot = {
+      _id: string,
+      supplierId: string,
+      productId: string,
+      slot: string,
+      lockId: string,
+      active: boolean,
+      __v: number,
+      productResourceId: string
+    }
