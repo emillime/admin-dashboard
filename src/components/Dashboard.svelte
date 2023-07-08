@@ -18,11 +18,6 @@
       console.log('Fetching bookings');
 			const bookings: Booking[] = await getAllBookings(token, '2023-04-05T00:00:19.735Z');
 			try {
-        /*bookings.forEach(async (booking) => {
-          console.log(`Adding booking: ${booking._id}`);
-          const id = await localDb.bookings.add(booking);
-          console.log(`Booking added id: ${id}`);
-        });*/
 				const id = await localDb.bookings.bulkPut(bookings);
         console.log(`Added bookings: ${id}`);
 			} catch (error) {

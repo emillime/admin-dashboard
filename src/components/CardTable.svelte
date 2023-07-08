@@ -1,10 +1,14 @@
 <script lang="ts">
+  import { getAllBookings } from '$lib/api';
 	import { faCaretRight, faRefresh } from '@fortawesome/free-solid-svg-icons';
 	import { DateTime } from 'luxon';
 	import Fa from 'svelte-fa';
+  import { getTokenFromCookie } from '../utils/jwtUtils';
 
 	export let date: Date;
 	export let bookings: Booking[];
+	
+	let loading = false;
 
 	function previousDay() {
 		date.setDate(date.getDate() - 1);
@@ -17,14 +21,11 @@
 	}
 
 	function fetchNewBookings() {
-		/*localDb.bookings
-			.where('startTime')
-			.aboveOrEqual(DateTime.fromJSDate(date).startOf('day').toJSDate())
-			.and((booking) => booking.startTime <= DateTime.fromJSDate(date).endOf('day').toJSDate())
-			.toArray()
-			.then((bookings) => {
-				bookings = bookings;
-			});*/
+		const token = getTokenFromCookie() ?? '';
+		loading = true;
+		getAllBookings(token, date.toISOString()).then((_) => {
+			loading = false;
+		});
 	}
 
 	$: totalUnits = bookings.reduce(
@@ -57,7 +58,7 @@
 			</button>
 			<div class="flex-grow"></div>
 			<button class="m-1 text-sky-600 hover:text-sky-900" on:click={fetchNewBookings}>
-				<Fa icon={faRefresh} size="1.5x" />
+				<Fa icon={faRefresh} size="1.5x" pulse={loading}/>
 			</button>
 		</div>
 	</div>

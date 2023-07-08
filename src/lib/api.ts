@@ -1,4 +1,5 @@
 import { parseJwt } from "../utils/jwtUtils";
+import { localDb } from '$lib/localDb';
 
 const BASE_URL = 'https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production';
 const CACHE_NAME = 'admin-cache';
@@ -119,5 +120,8 @@ export async function getAllBookings(token: string, startTime: string, endTime?:
     }
   }
 
+  // Store in local db
+  localDb.bookings.bulkPut(allBookings);
+  
   return allBookings;
 }
