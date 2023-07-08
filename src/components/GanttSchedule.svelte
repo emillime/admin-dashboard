@@ -20,7 +20,7 @@
   let gantt: SvelteGanttComponent;
   let ganttElement: HTMLElement;
 
-  let rows: RowModel[];
+  let rows: RowModel[] = [];
 
   let currentTime = DateTime.now().toMillis();
 
@@ -34,10 +34,10 @@
       showButton: false,
       enableDragging: false,
       resourceId: Number(booking.productSlotId.slot),
-    };
+    } ?? [];
   }) satisfies TaskModel[];
 
-  $: if (gantt && rows) {
+  $: if (gantt && rows && tasks) {
     gantt.$set({
       rows,
       tasks,
@@ -109,19 +109,6 @@
       props: options,
     });
 
-    setTimeout(() => {
-      const ganttBody = document.getElementsByClassName("sg-timeline-body")[0];
-      const timerange = document.getElementsByClassName("sg-time-range")[0];
-      if (!timerange) return;
-      if (!ganttBody) return;
-      const currentPos = timerange.getBoundingClientRect().left;
-      const scrollOffset = ganttBody.scrollLeft;
-      const clientWidth = ganttBody.clientWidth;
-      const target = clientWidth / 2 + 75;
-      const diff = currentPos - target;
-      ganttBody.scrollTo({ behavior: "smooth", left: diff + scrollOffset });
-    }, 10);
-
     const token = getTokenFromCookie() ?? "";
     const slots = await getSlots(token);
     rows = slots.map((slot) => {
@@ -133,6 +120,19 @@
         expanded: false,
       };
     });
+
+	setTimeout(() => {
+      const ganttBody = document.getElementsByClassName("sg-timeline-body")[0];
+      const timerange = document.getElementsByClassName("sg-time-range")[0];
+      if (!timerange) return;
+      if (!ganttBody) return;
+      const currentPos = timerange.getBoundingClientRect().left;
+      const scrollOffset = ganttBody.scrollLeft;
+      const clientWidth = ganttBody.clientWidth;
+      const target = clientWidth / 2 + 75;
+      const diff = currentPos - target;
+      ganttBody.scrollTo({ behavior: "smooth", left: diff + scrollOffset });
+    }, 300);
   });
 
   function createPopup(task: TaskModel, node: HTMLElement): HTMLElement {

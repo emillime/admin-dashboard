@@ -1,6 +1,26 @@
 import { parseJwt } from "../utils/jwtUtils";
 
 const BASE_URL = 'https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production';
+const CACHE_NAME = 'admin-cache';
+
+async function fetchUseCache(url: string, init?: RequestInit): Promise<Response> {
+  if (caches) {
+    const cache = await caches.open(CACHE_NAME);
+    const cachedResponse = await cache.match(url);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+  }
+
+  const response = await fetch(url, init);
+
+  if (caches && response.ok) {
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(url, response.clone());
+  }
+
+  return response;
+}
 
 export async function authorize(email: string, password: string): Promise<string> {
   const response = await fetch(`${BASE_URL}/authorization`, {
@@ -29,7 +49,7 @@ export async function getSlots(token: string, supplierId: string | undefined = u
   // TODO: Select correct supplier id
   const url = `${BASE_URL}/admin/slots/${supplierId || tokenData.supplierIds[0]}`;
 
-  const response = await fetch(url, {
+  const response = await fetchUseCache(url, {
     headers: {
       'Authorization': token,
     },
