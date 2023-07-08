@@ -1,4 +1,5 @@
 import { r as redirect, f as fail } from "../../chunks/index.js";
+import "../../chunks/localDb.js";
 import { p as parseJwt } from "../../chunks/jwtUtils.js";
 const BASE_URL = "https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production";
 async function authorize(email, password) {

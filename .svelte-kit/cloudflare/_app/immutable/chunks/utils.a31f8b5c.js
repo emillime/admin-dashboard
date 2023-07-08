@@ -1,0 +1,1 @@
+function i(n){const e=new Set,o=[];return n.forEach(r=>{e.has(r.bookingId.orderNumber)||(o.push(r),e.add(r.bookingId.orderNumber))}),o}function u(n,e,o){return n<=e?0:n>=o?100:(n-e)/(o-e)*100}export{i as f,u as p};

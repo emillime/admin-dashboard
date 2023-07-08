@@ -1,6 +1,5 @@
 import Dexie from "dexie";
 class MySubClassedDexie extends Dexie {
-  bookings;
   constructor() {
     super("operatorDatabase");
     this.version(1).stores({

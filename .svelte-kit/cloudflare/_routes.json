@@ -6,6 +6,6 @@
 	],
 	"exclude": [
 		"/_app/*",
-		"/favicon.png"
+		"/favicon.ico"
 	]
 }

@@ -9,6 +9,15 @@ function filterUniqueBookings(bookings) {
   });
   return uniqueBookings;
 }
+function percentOfPeriodDone(currentTime, start, end) {
+  if (currentTime <= start) {
+    return 0;
+  } else if (currentTime >= end) {
+    return 100;
+  }
+  return (currentTime - start) / (end - start) * 100;
+}
 export {
-  filterUniqueBookings as f
+  filterUniqueBookings as f,
+  percentOfPeriodDone as p
 };
