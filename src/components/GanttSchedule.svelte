@@ -4,31 +4,59 @@
   import { onMount } from "svelte";
   import { getTokenFromCookie } from "../utils/jwtUtils";
   import { DateTime } from "luxon";
-  import type { SvelteGanttOptions } from "svelte-gantt/types/gantt";
+  import type {
+    SvelteGanttComponent,
+    SvelteGanttOptions,
+  } from "svelte-gantt/types/gantt";
   import type { RowModel } from "svelte-gantt/types/core/row";
   import type { SvelteTask, TaskModel } from "svelte-gantt/types/core/task";
+  import { percentOfPeriodDone } from "$lib/utils";
 
   export let date: Date;
   export let bookings: Observable<Booking[]>;
   let SvelteGantt;
   let SvelteGanttTable;
 
+  let gantt: SvelteGanttComponent;
   let ganttElement: HTMLElement;
+
+  let rows: RowModel[];
+
+  let currentTime = DateTime.now().toMillis();
+
+  $: tasks = $bookings?.map((booking, index) => {
+    return {
+      id: index,
+      amountDone: percentOfPeriodDone(currentTime, booking.startTime.getTime(), booking.endTime.getTime()),
+      from: booking.startTime,
+      to: booking.endTime,
+      label: `${booking.bookingId.customerInfo.firstName} ${booking.bookingId.customerInfo.lastName}`,
+      showButton: false,
+      enableDragging: false,
+      resourceId: Number(booking.productSlotId.slot),
+    };
+  }) satisfies TaskModel[];
+
+  $: if (gantt && rows) {
+    gantt.$set({
+      rows,
+      tasks,
+      from: DateTime.fromJSDate(date).startOf("day").toMillis(),
+      to: DateTime.fromJSDate(date).endOf("day").toMillis(),
+    });
+  }
 
   onMount(async () => {
     SvelteGantt = (await import("svelte-gantt")).SvelteGantt;
     SvelteGanttTable = (await import("svelte-gantt")).SvelteGanttTable;
 
-    const data = await generate();
-
-    let currentTime = DateTime.now().toMillis();
     let options: SvelteGanttOptions = {
       headers: [
         { unit: "day", format: "dd/MM/yyyy" },
         { unit: "hour", format: "hh:mm" },
       ],
-      rows: data.rows,
-      tasks: data.tasks,
+      rows: [],
+      tasks: [],
       timeRanges: [
         {
           id: 0,
@@ -52,7 +80,7 @@
         { title: "", property: "label", width: 100, type: "tree" },
       ],
       ganttTableModules: [SvelteGanttTable],
-	  /*taskElementHook: (node, task) => {
+      /*taskElementHook: (node, task) => {
             let popup: HTMLElement;
             function onHover() {
                 popup = createPopup((task as unknown as TaskModel), node); // Typed wrong in svelte-gantt
@@ -76,7 +104,7 @@
         },*/
     };
 
-    const gantt = new SvelteGantt({
+    gantt = new SvelteGantt({
       target: ganttElement,
       props: options,
     });
@@ -84,21 +112,19 @@
     setTimeout(() => {
       const ganttBody = document.getElementsByClassName("sg-timeline-body")[0];
       const timerange = document.getElementsByClassName("sg-time-range")[0];
-	  if (!timerange) return;
-	  if (!ganttBody) return;
+      if (!timerange) return;
+      if (!ganttBody) return;
       const currentPos = timerange.getBoundingClientRect().left;
       const scrollOffset = ganttBody.scrollLeft;
       const clientWidth = ganttBody.clientWidth;
-      const target = (clientWidth / 2) + 75;
+      const target = clientWidth / 2 + 75;
       const diff = currentPos - target;
       ganttBody.scrollTo({ behavior: "smooth", left: diff + scrollOffset });
     }, 10);
-  });
 
-  async function generate() {
     const token = getTokenFromCookie() ?? "";
     const slots = await getSlots(token);
-    const rows: RowModel[] = slots.map((slot) => {
+    rows = slots.map((slot) => {
       return {
         id: Number(slot.slot),
         enableDragging: false,
@@ -107,44 +133,33 @@
         expanded: false,
       };
     });
-    let id = 0;
-    const tasks: TaskModel[] = $bookings?.map((booking) => {
-      return {
-        id: id++,
-        amountDone: 50,
-        from: booking.startTime,
-        to: booking.endTime,
-        label: `${booking.bookingId.customerInfo.firstName} ${booking.bookingId.customerInfo.lastName}`,
-        showButton: false,
-        enableDragging: false,
-        resourceId: Number(booking.productSlotId.slot),
-      };
-    });
-
-    return { rows, tasks };
-  }
+  });
 
   function createPopup(task: TaskModel, node: HTMLElement): HTMLElement {
-        const rect = node.getBoundingClientRect();
-        const div = document.createElement('div');
-        div.className = 'sg-popup';
-        div.innerHTML = `
+    const rect = node.getBoundingClientRect();
+    const div = document.createElement("div");
+    div.className = "sg-popup";
+    div.innerHTML = `
             <div class="sg-popup-title">${task.label}</div>
             <div class="sg-popup-item">
                 <div class="sg-popup-item-label">From:</div>
-                <div class="sg-popup-item-value">${new Date(task.from).toLocaleTimeString()}</div>
+                <div class="sg-popup-item-value">${new Date(
+                  task.from
+                ).toLocaleTimeString()}</div>
             </div>
             <div class="sg-popup-item">
                 <div class="sg-popup-item-label">To:</div>
-                <div class="sg-popup-item-value">${new Date(task.to).toLocaleTimeString()}</div>
+                <div class="sg-popup-item-value">${new Date(
+                  task.to
+                ).toLocaleTimeString()}</div>
             </div>
         `;
-        div.style.position = 'absolute';
-        div.style.top = `${rect.bottom}px`;
-        div.style.left = `${rect.left + rect.width / 2}px`;
-        document.body.appendChild(div);
-        return div;
-    }
+    div.style.position = "absolute";
+    div.style.top = `${rect.bottom}px`;
+    div.style.left = `${rect.left + rect.width / 2}px`;
+    document.body.appendChild(div);
+    return div;
+  }
 </script>
 
 <div bind:this={ganttElement} />

@@ -9,3 +9,12 @@ export function filterUniqueBookings(bookings: Booking[]): Booking[] {
     });
     return uniqueBookings;
 }
+
+export function percentOfPeriodDone(currentTime: number, start: number, end: number): number {
+    if (currentTime <= start) {
+        return 0;
+    } else if (currentTime >= end) {
+        return 100;
+    }
+    return ((currentTime - start) / (end - start)) * 100;
+}
