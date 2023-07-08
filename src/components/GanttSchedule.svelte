@@ -34,6 +34,7 @@
       showButton: false,
       enableDragging: false,
       resourceId: Number(booking.productSlotId.slot),
+	  classes: "border-separator",
     } ?? [];
   }) satisfies TaskModel[];
 
@@ -163,3 +164,9 @@
 </script>
 
 <div bind:this={ganttElement} />
+
+<style>
+	:global(.border-separator) {
+		@apply border-x border-x-sky-50;
+	}
+</style>
