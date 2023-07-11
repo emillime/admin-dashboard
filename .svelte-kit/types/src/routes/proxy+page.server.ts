@@ -5,7 +5,7 @@ import { authorize } from "../lib/api";
 import { parseJwt } from "../utils/jwtUtils";
 
 export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
-    if (locals.token) throw redirect(307, '/dashboard');
+    if (locals.token) throw redirect(307, '/today');
 }
 
 export const actions = {

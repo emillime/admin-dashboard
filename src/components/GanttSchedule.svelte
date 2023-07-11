@@ -23,19 +23,26 @@
   let rows: RowModel[] = [];
 
   let currentTime = DateTime.now().toMillis();
+  let intervalId: number;
 
   $: tasks = $bookings?.map((booking, index) => {
-    return {
-      id: index,
-      amountDone: percentOfPeriodDone(currentTime, booking.startTime.getTime(), booking.endTime.getTime()),
-      from: booking.startTime,
-      to: booking.endTime,
-      label: `${booking.bookingId.customerInfo.firstName} ${booking.bookingId.customerInfo.lastName}`,
-      showButton: false,
-      enableDragging: false,
-      resourceId: Number(booking.productSlotId.slot),
-	  classes: "border-separator",
-    } ?? [];
+    return (
+      {
+        id: index,
+        amountDone: percentOfPeriodDone(
+          currentTime,
+          booking.startTime.getTime(),
+          booking.endTime.getTime()
+        ),
+        from: booking.startTime,
+        to: booking.endTime,
+        label: `${booking.bookingId.customerInfo.firstName} ${booking.bookingId.customerInfo.lastName}`,
+        showButton: false,
+        enableDragging: false,
+        resourceId: Number(booking.productSlotId.slot),
+        classes: "border-separator",
+      } ?? []
+    );
   }) satisfies TaskModel[];
 
   $: if (gantt && rows && tasks) {
@@ -44,6 +51,15 @@
       tasks,
       from: DateTime.fromJSDate(date).startOf("day").toMillis(),
       to: DateTime.fromJSDate(date).endOf("day").toMillis(),
+      timeRanges: [
+        {
+          id: 0,
+          from: currentTime,
+          to: currentTime + 60000,
+          label: "Nu",
+          enableResizing: false,
+        },
+      ],
     });
   }
 
@@ -122,7 +138,7 @@
       };
     });
 
-	setTimeout(() => {
+    setTimeout(() => {
       const ganttBody = document.getElementsByClassName("sg-timeline-body")[0];
       const timerange = document.getElementsByClassName("sg-time-range")[0];
       if (!timerange) return;
@@ -134,6 +150,15 @@
       const diff = currentPos - target;
       ganttBody.scrollTo({ behavior: "smooth", left: diff + scrollOffset });
     }, 300);
+
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+
+    intervalId = setInterval(() => {
+      currentTime = DateTime.now().toMillis();
+      tasks = tasks;
+    }, 300000);
   });
 
   function createPopup(task: TaskModel, node: HTMLElement): HTMLElement {
@@ -166,7 +191,7 @@
 <div bind:this={ganttElement} />
 
 <style>
-	:global(.border-separator) {
-		@apply border-x border-x-sky-50;
-	}
+  :global(.border-separator) {
+    @apply border-x border-x-sky-50;
+  }
 </style>
