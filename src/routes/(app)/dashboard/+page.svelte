@@ -1,4 +1,15 @@
 <script lang="ts">
+  import {
+    faSackDollar,
+    faSackXmark,
+    faMoneyBill1Wave,
+    faCoins,
+    faMoneyBillTrendUp,
+    faPiggyBank,
+	faMagnifyingGlassChart,
+    type IconDefinition,
+  } from "@fortawesome/free-solid-svg-icons";
+
   import Dashboard from "../../../components/Dashboard.svelte";
   import FriendList from "$lib/components/FriendList.svelte";
   import CardStats from "../../../components/CardStats.svelte";
@@ -25,11 +36,43 @@
       .aboveOrEqual(startDate)
       .and((booking) => booking.startTime <= endDate)
       .toArray();
-    return filterUniqueBookings(bookings);
+    return bookings;
   });
 
+  $: uniqueBookings = filterUniqueBookings($bookings ?? []);
+
+  $: totalSales = Math.round(
+    uniqueBookings.reduce((sum, booking) => {
+      return sum + booking.bookingId.paidAmount;
+    }, 0)
+  );
+
+  function getSalesIcon(amount: number): IconDefinition {
+    switch (true) {
+      case amount < 10:
+        return faSackXmark;
+      case amount < 500:
+        return faCoins;
+      case amount < 1300:
+        return faMoneyBill1Wave;
+      case amount < 2500:
+        return faMoneyBillTrendUp;
+      case amount < 5000:
+        return faPiggyBank;
+      default:
+        return faSackDollar;
+    }
+  }
+
+  function getAvgSales(totalValue: number, numberOfBookings: number) {
+	if (numberOfBookings === 0) {
+		return 0;
+	}
+	return Math.round(totalValue / numberOfBookings);
+  }
+
   onMount(async () => {
-	let today = DateTime.now();
+    let today = DateTime.now();
     picker = new easepick.create({
       element: datePicker,
       css: [
@@ -52,16 +95,34 @@
         endDate: endDate,
         locale: { one: "dag", other: "dagar" },
       },
-	  PresetPlugin: {
-		customPreset: {
-			'Idag': [today.startOf('day').toJSDate(), today.endOf('day').toJSDate()],
-			'Denna vecka': [today.startOf('week').toJSDate(), today.endOf('week').toJSDate()],
-			'Förra veckan': [today.startOf('week').minus({ weeks: 1 }).toJSDate(), today.endOf('week').minus({ weeks: 1 }).toJSDate()],
-			'Denna månad': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
-			'Förra månaden': [today.startOf('month').minus({ months: 1 }).toJSDate(), today.endOf('month').minus({ months: 1 }).toJSDate()],
-			'Detta år': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-		},
-	  },
+      PresetPlugin: {
+        customPreset: {
+          Idag: [
+            today.startOf("day").toJSDate(),
+            today.endOf("day").toJSDate(),
+          ],
+          "Denna vecka": [
+            today.startOf("week").toJSDate(),
+            today.endOf("week").toJSDate(),
+          ],
+          "Förra veckan": [
+            today.startOf("week").minus({ weeks: 1 }).toJSDate(),
+            today.endOf("week").minus({ weeks: 1 }).toJSDate(),
+          ],
+          "Denna månad": [
+            today.startOf("month").toJSDate(),
+            today.endOf("month").toJSDate(),
+          ],
+          "Förra månaden": [
+            today.startOf("month").minus({ months: 1 }).toJSDate(),
+            today.endOf("month").minus({ months: 1 }).toJSDate(),
+          ],
+          "Detta år": [
+            today.startOf("year").toJSDate(),
+            today.endOf("year").toJSDate(),
+          ],
+        },
+      },
       TimePlugin: {
         stepMinutes: 60,
       },
@@ -150,10 +211,22 @@
   />
 </div>
 {#if $bookings}
-  <CardStats statSubtitle="Ordrar" statTitle={$bookings.length.toString()} />
+<div class="flex flex-row flex-wrap justify-evenly">
+  <CardStats
+    statSubtitle="Ordrar"
+    statTitle={uniqueBookings.length.toString()}
+  />
+  <CardStats
+    statSubtitle="Snittorder"
+    statTitle={getAvgSales(totalSales, uniqueBookings.length).toLocaleString() + " kr"}
+	statIcon={getSalesIcon(getAvgSales(totalSales, uniqueBookings.length))}
+  />
+  <CardStats
+    statSubtitle="Intäkter"
+    statTitle={totalSales.toLocaleString() + " kr"}
+    statIcon={getSalesIcon(totalSales)}
+  />
+</div>
 {/if}
 <Dashboard />
 <FriendList />
-
-<style>
-</style>
