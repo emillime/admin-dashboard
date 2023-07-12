@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getSlots } from "$lib/api";
   import type { Observable } from "dexie";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { getTokenFromCookie } from "../utils/jwtUtils";
   import { DateTime } from "luxon";
   import type {
@@ -159,6 +159,12 @@
       currentTime = DateTime.now().toMillis();
       tasks = tasks;
     }, 300000);
+  });
+
+  onDestroy(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
   });
 
   function createPopup(task: TaskModel, node: HTMLElement): HTMLElement {

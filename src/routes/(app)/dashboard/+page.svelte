@@ -9,8 +9,10 @@
   import { PresetPlugin } from "@easepick/preset-plugin";
   import { TimePlugin } from "@easepick/time-plugin";
   import { filterUniqueBookings } from "$lib/utils";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { DateTime } from "luxon";
+
+  let picker: easepick.Core;
 
   let datePicker: HTMLElement;
   let datePickerEnd: HTMLElement;
@@ -27,10 +29,15 @@
   });
 
   onMount(async () => {
-    const picker = new easepick.create({
+	let today = DateTime.now();
+    picker = new easepick.create({
       element: datePicker,
       css: [
         "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+        "https://cdn.jsdelivr.net/npm/@easepick/range-plugin@1.2.1/dist/index.css",
+        "https://cdn.jsdelivr.net/npm/@easepick/preset-plugin@1.2.1/dist/index.css",
+        "https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.css",
+        "datepicker.css",
       ],
       zIndex: 10,
       format: "YYYY/MM/DD HH:mm",
@@ -39,11 +46,22 @@
       RangePlugin: {
         repick: false,
         strict: true,
-		// @ts-ignore Wrong types, JSDate is ok
-		startDate: startDate,
-		// @ts-ignore Wrong types, JSDate is ok
-		endDate: endDate,
+        // @ts-ignore Wrong types, JSDate is ok
+        startDate: startDate,
+        // @ts-ignore Wrong types, JSDate is ok
+        endDate: endDate,
+        locale: { one: "dag", other: "dagar" },
       },
+	  PresetPlugin: {
+		customPreset: {
+			'Idag': [today.startOf('day').toJSDate(), today.endOf('day').toJSDate()],
+			'Denna vecka': [today.startOf('week').toJSDate(), today.endOf('week').toJSDate()],
+			'Förra veckan': [today.startOf('week').minus({ weeks: 1 }).toJSDate(), today.endOf('week').minus({ weeks: 1 }).toJSDate()],
+			'Denna månad': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
+			'Förra månaden': [today.startOf('month').minus({ months: 1 }).toJSDate(), today.endOf('month').minus({ months: 1 }).toJSDate()],
+			'Detta år': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
+		},
+	  },
       TimePlugin: {
         stepMinutes: 60,
       },
@@ -64,7 +82,6 @@
         });
       },
     });
-
 
     function reformatTimePicker(p: easepick.Core) {
       // Hide the minutes since we only want to show full hours
@@ -109,6 +126,20 @@
         });
     }
   });
+
+  onDestroy(() => {
+    if (picker) {
+      picker.off("render", () => {});
+      picker.off("select", () => {});
+      picker.ui.container
+        .querySelectorAll(
+          '.time-plugin-container > .time-plugin-custom-block > select[name$="[HH]"]'
+        )
+        .forEach((el) => {
+          (el as HTMLSelectElement).onchange = null;
+        });
+    }
+  });
 </script>
 
 <div class="flex justify-center align-middle">
@@ -123,3 +154,6 @@
 {/if}
 <Dashboard />
 <FriendList />
+
+<style>
+</style>
