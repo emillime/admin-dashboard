@@ -38,6 +38,6 @@ export const actions = {
             httpOnly: false,
         });
 
-		throw redirect(303, '/dashboard');
+		throw redirect(303, '/today');
 	}
 };
