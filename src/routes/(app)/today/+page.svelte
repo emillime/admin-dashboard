@@ -25,12 +25,16 @@
 
   function fetchTodaysBookings() {
     const token = getTokenFromCookie() ?? "";
-	const today = new Date();
-    getAllBookings(token, DateTime.fromJSDate(today).startOf("day").toJSDate().toISOString(), DateTime.fromJSDate(today).endOf("day").toJSDate().toISOString());
+    const today = new Date();
+    getAllBookings(
+      token,
+      DateTime.fromJSDate(today).startOf("day").toJSDate().toISOString(),
+      DateTime.fromJSDate(today).endOf("day").toJSDate().toISOString()
+    );
   }
 
   onMount(() => {
-	fetchTodaysBookings();
+    fetchTodaysBookings();
   });
 </script>
 

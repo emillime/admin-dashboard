@@ -5,17 +5,10 @@
   // Todo: Remove auto and import only parts needed to reduce size
   //Chart.register(DoughnutController, ArcElement);
 
-  export let data = undefined;
+  export let data: { x: number; y: number }[] = []
 
   let lineChartCanvas;
   let myChart: Chart;
-  let startDate: Date;
-  let endDate: Date;
-
-  $: if (data != undefined && data.length > 0) {
-    startDate = new Date(data[0].x);
-    endDate = new Date(data[data.length - 1]?.x);
-  }
 
   let config: ChartConfiguration = {
     type: "line",

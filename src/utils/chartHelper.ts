@@ -1,62 +1,43 @@
-type TimeFrame = "hour" | "day" | "week" | "month";
+import { DateTime, type DateTimeUnit } from "luxon";
 
 export function formatChartData(
+  startDate: Date,
+  endDate: Date,
   bookings: Booking[],
-  groupBy: TimeFrame
-): { x: Date; y: number }[] {
-  const groupedData = {};
+  groupBy: DateTimeUnit
+): { x: number; y: number }[] {
+  const groupedData: {
+    [date: string]: { x: number; y: number };
+  } = {};
 
-  bookings.forEach((booking) => {
-    const bookingDate = new Date(booking.startTimeLocal);
-    const dateKey = getDateKey(bookingDate, groupBy);
-    if (!groupedData[dateKey.toString()]) {
-      groupedData[dateKey.toString()] = {
-        x: dateKey.getTime(),
-        y: 0,
-      };
-    }
-    groupedData[dateKey.toString()].y += booking.bookingId.paidAmount;
+  let dates = getEveryDateBetween(startDate, endDate, groupBy);
+  dates.forEach((date) => {
+    groupedData[date.toString()] = {
+      x: date.getTime(),
+      y: 0,
+    };
   });
 
-
+  bookings.forEach((booking) => {
+    const startTime = DateTime.fromJSDate(booking.startTime);
+    const dateKey = startTime.startOf(groupBy).toJSDate();
+    groupedData[dateKey.toString()].y += booking.bookingId.paidAmount;
+  });
 
   return Object.values(groupedData);
 }
 
-function getDateKey(date: Date, timeFrame: TimeFrame): Date {
-  var newDate = date;
-  switch (timeFrame) {
-    case "hour":
-      newDate = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-        date.getHours()
-      );
-      break;
-    case "day":
-      newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      break;
-    case "week":
-      const year = date.getFullYear();
-      const week = getWeekNumber(date);
-      newDate = getStartDateOfWeek(year, week);
-      break;
-    case "month":
-      const yearmonth = date.getFullYear();
-      const month = date.getMonth();
-      newDate = new Date(yearmonth, month);
-      break;
-  }
-  return newDate;
-}
-
-function getEveryDateBetween(startDate: Date, endDate: Date): Date[] {
+export function getEveryDateBetween(
+  startDate: Date,
+  endDate: Date,
+  unit: DateTimeUnit
+): Date[] {
   const dates = [];
-  let currentDate = startDate;
-  while (currentDate <= endDate) {
-    dates.push(new Date(currentDate));
-    currentDate.setDate(currentDate.getDate() + 1);
+  let currentDate = DateTime.fromJSDate(startDate).startOf(unit);
+  let endTime = DateTime.fromJSDate(endDate).startOf(unit);
+  while (currentDate <= endTime) {
+    dates.push(new Date(currentDate.startOf(unit).toJSDate()));
+    currentDate = currentDate.plus({ [unit]: 1 });
   }
   return dates;
 }

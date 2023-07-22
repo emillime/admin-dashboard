@@ -17,6 +17,6 @@
 	<PillNavbar />
 </header>
 
-<main class="w-screen h-screen bg-slate-100">
+<main class="bg-slate-100">
 	<slot />
 </main>

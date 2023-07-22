@@ -17,7 +17,7 @@
 </script>
 
 <div
-  class="relative flex flex-col min-w-0 break-words bg-white rounded mb-6 xl:mb-0 shadow-lg max-w-max"
+  class="relative flex flex-col min-w-0 break-words bg-white rounded m-1 shadow-lg max-w-max"
 >
   <div class="flex-auto p-4 max-w-max">
     <div class="flex flex-nowrap">

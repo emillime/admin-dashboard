@@ -25,7 +25,6 @@ localDb.on("populate", async () => {
     return;
   }
   if (token && token.length > 0) {
-    console.log("Fetching bookings");
     const bookings: Booking[] = await getAllBookings(
       token,
       DateTime.now().startOf("year").toJSDate().toISOString(),

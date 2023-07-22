@@ -6,12 +6,9 @@
     faCoins,
     faMoneyBillTrendUp,
     faPiggyBank,
-	faMagnifyingGlassChart,
+    faMagnifyingGlassChart,
     type IconDefinition,
   } from "@fortawesome/free-solid-svg-icons";
-
-  import Dashboard from "../../../components/Dashboard.svelte";
-  import FriendList from "$lib/components/FriendList.svelte";
   import CardStats from "../../../components/CardStats.svelte";
   import { liveQuery } from "dexie";
   import { localDb } from "$lib/localDb";
@@ -22,6 +19,10 @@
   import { filterUniqueBookings } from "$lib/utils";
   import { onDestroy, onMount } from "svelte";
   import { DateTime } from "luxon";
+  import { getTokenFromCookie } from "../../../utils/jwtUtils";
+  import { getAllBookings } from "$lib/api";
+  import { formatChartData, getEveryDateBetween } from "../../../utils/chartHelper";
+  import CardLineChart from "../../../components/CardLineChart.svelte";
 
   let picker: easepick.Core;
 
@@ -47,6 +48,22 @@
     }, 0)
   );
 
+  $: totalUnits = uniqueBookings?.reduce(
+    (units: { [name: string]: number }, booking) => {
+      Object.values(booking.bookingId.priceObject.products).forEach(
+        (product) => {
+          units[product.productName] =
+            (units[product.productName] || 0) + product.quantity;
+        }
+      );
+      return units;
+    },
+    {}
+  );
+
+  $: chartData = formatChartData(startDate, endDate, uniqueBookings, "day") ?? [];
+//  $: chartDays = getEveryDateBetween(startDate, endDate, "day");
+
   function getSalesIcon(amount: number): IconDefinition {
     switch (true) {
       case amount < 10:
@@ -65,10 +82,10 @@
   }
 
   function getAvgSales(totalValue: number, numberOfBookings: number) {
-	if (numberOfBookings === 0) {
-		return 0;
-	}
-	return Math.round(totalValue / numberOfBookings);
+    if (numberOfBookings === 0) {
+      return 0;
+    }
+    return Math.round(totalValue / numberOfBookings);
   }
 
   onMount(async () => {
@@ -144,49 +161,74 @@
       },
     });
 
-    function reformatTimePicker(p: easepick.Core) {
-      // Hide the minutes since we only want to show full hours
-      p.ui.container
-        .querySelectorAll(
-          '.time-plugin-container > .time-plugin-custom-block > select[name$="[mm]"]'
-        )
-        .forEach((el) => {
-          (el as HTMLSelectElement).hidden = true;
-        });
-
-      // Trigger event when time is changed manually
-      p.ui.container
-        .querySelectorAll(
-          '.time-plugin-container > .time-plugin-custom-block > select[name$="[HH]"]'
-        )
-        .forEach((el) => {
-          (el as HTMLSelectElement).onchange = (e) => {
-            let detail = {
-              start: p.getStartDate(),
-              end: p.getEndDate(),
-            };
-            if ((el as HTMLSelectElement).name.includes("start")) {
-              detail.start?.setHours(parseInt((el as HTMLSelectElement).value));
-            } else if ((el as HTMLSelectElement).name.includes("end")) {
-              detail.end?.setHours(parseInt((el as HTMLSelectElement).value));
-            }
-            if (detail.start && detail.end) {
-              p.trigger("select", detail);
-            }
-          };
-        });
-
-      // Format hours to look better
-      p.ui.container
-        .querySelectorAll(
-          '.time-plugin-container > .time-plugin-custom-block > select[name$="[HH]"] > option'
-        )
-        .forEach((el) => {
-          el.textContent = `0${el.textContent}`.slice(-2);
-          el.textContent = `${el.textContent}:00`;
-        });
-    }
+    /*if ((await localDb.bookings.count()) === 0) {
+      console.log("Fetching bookings");
+      fetchAllBookings();
+    }*/
   });
+
+  function reformatTimePicker(p: easepick.Core) {
+    // Hide the minutes since we only want to show full hours
+    p.ui.container
+      .querySelectorAll(
+        '.time-plugin-container > .time-plugin-custom-block > select[name$="[mm]"]'
+      )
+      .forEach((el) => {
+        (el as HTMLSelectElement).hidden = true;
+      });
+
+    // Trigger event when time is changed manually
+    p.ui.container
+      .querySelectorAll(
+        '.time-plugin-container > .time-plugin-custom-block > select[name$="[HH]"]'
+      )
+      .forEach((el) => {
+        (el as HTMLSelectElement).onchange = (e) => {
+          let detail = {
+            start: p.getStartDate(),
+            end: p.getEndDate(),
+          };
+          if ((el as HTMLSelectElement).name.includes("start")) {
+            detail.start?.setHours(parseInt((el as HTMLSelectElement).value));
+          } else if ((el as HTMLSelectElement).name.includes("end")) {
+            detail.end?.setHours(parseInt((el as HTMLSelectElement).value));
+          }
+          if (detail.start && detail.end) {
+            p.trigger("select", detail);
+          }
+        };
+      });
+
+    // Format hours to look better
+    p.ui.container
+      .querySelectorAll(
+        '.time-plugin-container > .time-plugin-custom-block > select[name$="[HH]"] > option'
+      )
+      .forEach((el) => {
+        el.textContent = `0${el.textContent}`.slice(-2);
+        el.textContent = `${el.textContent}:00`;
+      });
+  }
+
+  async function fetchAllBookings() {
+    let today = DateTime.now();
+    let token = getTokenFromCookie();
+    if (token == null || token.length === 0) {
+      console.error("No token found");
+    }
+
+    if (token && token.length > 0) {
+      const bookings: Booking[] = await getAllBookings(
+        token,
+        today.startOf("year").toJSDate().toISOString()
+      );
+      try {
+        const id = await localDb.bookings.bulkPut(bookings);
+      } catch (error) {
+        console.error(`Failed to add bookings: ${error}`);
+      }
+    }
+  }
 
   onDestroy(() => {
     if (picker) {
@@ -210,7 +252,6 @@
     class="w-64 h-10 px-3 mb-3 min-w-[300px] text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
   />
 </div>
-{#if $bookings}
 <div class="flex flex-row flex-wrap justify-evenly">
   <CardStats
     statSubtitle="Ordrar"
@@ -218,15 +259,18 @@
   />
   <CardStats
     statSubtitle="Snittorder"
-    statTitle={getAvgSales(totalSales, uniqueBookings.length).toLocaleString() + " kr"}
-	statIcon={getSalesIcon(getAvgSales(totalSales, uniqueBookings.length))}
+    statTitle={getAvgSales(totalSales, uniqueBookings.length).toLocaleString() +
+      " kr"}
+    statIcon={getSalesIcon(getAvgSales(totalSales, uniqueBookings.length))}
   />
+  {#each Object.keys(totalUnits) as name}
+    <CardStats statTitle={totalUnits[name].toString()} statSubtitle={name} />
+  {/each}
   <CardStats
     statSubtitle="Intäkter"
     statTitle={totalSales.toLocaleString() + " kr"}
     statIcon={getSalesIcon(totalSales)}
   />
 </div>
-{/if}
-<Dashboard />
-<FriendList />
+<CardLineChart data={chartData} />
+<!--<Dashboard bookings={uniqueBookings} />-->
