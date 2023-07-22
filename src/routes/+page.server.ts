@@ -1,14 +1,14 @@
 import { fail, redirect } from "@sveltejs/kit"
-import type { PageServerLoad } from "./$types"
+import type { PageServerLoad, RouteParams } from "./$types"
 import { authorize } from "../lib/api";
 import { parseJwt } from "../utils/jwtUtils";
 
-export const load: PageServerLoad = async ({ locals }) => {
-    if (locals.token) throw redirect(307, '/today');
+export const load: PageServerLoad = async ({ locals, url }) => {
+    if (locals.token) handleRedirect(url);
 }
 
 export const actions = {
-	default: async ({ cookies, request }) => {
+	default: async ({ cookies, request, url }) => {
 		const data = await request.formData();
 
         const email = data.get('email')?.toString();
@@ -37,6 +37,14 @@ export const actions = {
             httpOnly: false,
         });
 
-		throw redirect(303, '/today');
+        handleRedirect(url);
 	}
 };
+
+function handleRedirect(url: URL) {
+    if (url.searchParams.has('redirectTo')) {
+        let redirectPath = url.searchParams.get('redirectTo');
+        throw redirect(303, `/${redirectPath?.slice(1)}`);
+    }
+    throw redirect(303, '/today'); 
+}

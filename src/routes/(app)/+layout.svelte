@@ -7,7 +7,7 @@
 	$: if($navigating) {
 		const token = getTokenFromCookie();
 		if(!token) {
-			window.location.href = '/';
+			window.location.href = `/?redirectTo=${$navigating.to?.url.pathname}${$navigating.to?.url.search}`;
 		}
 	}
 

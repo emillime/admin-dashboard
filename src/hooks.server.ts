@@ -10,7 +10,8 @@ export const handle = (async ({ event, resolve }) => {
 
 	if (event.route.id?.startsWith('/(app)')) {
 		if (event.locals.token == null || event.locals.token.length === 0) {
-			throw redirect(303, '/');
+			console.log(event.url)
+			throw redirect(303, `/?redirectTo=${event.url.pathname}${event.url.search}`);
 		}
 	}
 
