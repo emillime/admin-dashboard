@@ -31,7 +31,6 @@ localDb.on("populate", async () => {
     );
     try {
       const id = await localDb.bookings.bulkPut(bookings);
-      console.log(`Added bookings`);
     } catch (error) {
       console.error(`Failed to add bookings: ${error}`);
     }
