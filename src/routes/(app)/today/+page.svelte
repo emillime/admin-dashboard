@@ -34,7 +34,8 @@
   }
 
   onMount(() => {
-    fetchTodaysBookings();
+    // Not needed because we update all bookings on page reload
+    // fetchTodaysBookings();
   });
 </script>
 

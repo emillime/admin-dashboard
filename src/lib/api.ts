@@ -1,10 +1,15 @@
 import { parseJwt } from "../utils/jwtUtils";
-import { localDb } from '$lib/localDb';
+import { localDb } from "$lib/localDb";
+import { DateTime } from "luxon";
 
-const BASE_URL = 'https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production';
-const CACHE_NAME = 'admin-cache';
+const BASE_URL =
+  "https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production";
+const CACHE_NAME = "admin-cache";
 
-async function fetchUseCache(url: string, init?: RequestInit): Promise<Response> {
+async function fetchUseCache(
+  url: string,
+  init?: RequestInit
+): Promise<Response> {
   if (caches) {
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(url);
@@ -23,49 +28,63 @@ async function fetchUseCache(url: string, init?: RequestInit): Promise<Response>
   return response;
 }
 
-export async function authorize(email: string, password: string): Promise<string> {
+export async function authorize(
+  email: string,
+  password: string
+): Promise<string> {
   const response = await fetch(`${BASE_URL}/authorization`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to authorize');
+    throw new Error("Failed to authorize");
   }
 
   const data = await response.json();
 
-  if (data.msg != 'authorized') {
-    throw new Error('Failed to authorize');
+  if (data.msg != "authorized") {
+    throw new Error("Failed to authorize");
   }
 
   return data.token;
 }
 
-export async function getSlots(token: string, supplierId: string | undefined = undefined): Promise<Slot[]> {
+export async function getSlots(
+  token: string,
+  supplierId: string | undefined = undefined
+): Promise<Slot[]> {
   const tokenData = parseJwt(token);
   // TODO: Select correct supplier id
-  const url = `${BASE_URL}/admin/slots/${supplierId || tokenData.supplierIds[0]}`;
+  const url = `${BASE_URL}/admin/slots/${
+    supplierId || tokenData.supplierIds[0]
+  }`;
 
   const response = await fetchUseCache(url, {
     headers: {
-      'Authorization': token,
+      Authorization: token,
     },
-    method: 'GET',
+    method: "GET",
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch bookings');
+    throw new Error("Failed to fetch bookings");
   }
 
   return response.json();
 }
 
-export async function getBookings(token: string, page: number, startTime: string, endTime?: string, cancelled = 0, bookingInProgress = 0): Promise<Booking[]> {
-  
+export async function getBookings(
+  token: string,
+  page: number,
+  startTime: string,
+  endTime?: string,
+  cancelled = 0,
+  bookingInProgress = 0
+): Promise<Booking[]> {
   const queryParams = new URLSearchParams({
     page: page.toString(),
     startTime,
@@ -74,39 +93,54 @@ export async function getBookings(token: string, page: number, startTime: string
     bookingInProgress: bookingInProgress.toString(),
   });
 
-  const response = await fetch(`${BASE_URL}/admin/bookings?${queryParams.toString()}`, {
-    headers: {
-      'Authorization': token,
-    },
-    method: 'GET',
-  });
+  const response = await fetch(
+    `${BASE_URL}/admin/bookings?${queryParams.toString()}`,
+    {
+      headers: {
+        Authorization: token,
+      },
+      method: "GET",
+    }
+  );
 
   if (!response.ok) {
-    throw new Error('Failed to fetch bookings');
+    throw new Error("Failed to fetch bookings");
   }
 
   const data = await response.json();
 
- 
-  return  data?.map((b: any) => { 
+  return data?.map((b: any) => {
     return {
-      ...b, 
+      ...b,
       startTime: new Date(b?.startTime),
       endTime: new Date(b?.endTime),
       startTimeLocal: new Date(b?.startTimeLocal),
       endTimeLocal: new Date(b?.endTimeLocal),
-    }
+    };
   });
 }
 
-export async function getAllBookings(token: string, startTime: string, endTime?: string, cancelled = 0, bookingInProgress = 0): Promise<Booking[]> {
+export async function getAllBookings(
+  token: string,
+  startTime: string,
+  endTime?: string,
+  cancelled = 0,
+  bookingInProgress = 0
+): Promise<Booking[]> {
   const maxPages = 100;
   let page = 1;
   let allBookings: Booking[] = [];
 
   while (page <= maxPages) {
     try {
-      const bookings = await getBookings(token, page, startTime, endTime, cancelled, bookingInProgress);
+      const bookings = await getBookings(
+        token,
+        page,
+        startTime,
+        endTime,
+        cancelled,
+        bookingInProgress
+      );
       if (bookings.length === 0) {
         // No more bookings on the current page, stop iterating
         break;
@@ -115,13 +149,29 @@ export async function getAllBookings(token: string, startTime: string, endTime?:
       allBookings = allBookings.concat(bookings);
       page++;
     } catch (error) {
-      console.error('Failed to fetch bookings:', error);
+      console.error("Failed to fetch bookings:", error);
       break;
     }
   }
 
   // Store in local db
   localDb.bookings.bulkPut(allBookings);
-  
+
   return allBookings;
+}
+
+export async function updateBookings(token: string, from?: string) {
+  if (from == undefined) {
+    from =
+      localStorage.getItem("lastUpdated") ??
+      DateTime.now().startOf("year").toJSDate().toISOString();
+  }
+
+  const bookings: Booking[] = await getAllBookings(token, from);
+  if (bookings.length > 0) {
+    localStorage.setItem(
+      "lastUpdated",
+      DateTime.now().startOf("day").toJSDate().toISOString()
+    );
+  }
 }

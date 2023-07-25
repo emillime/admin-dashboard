@@ -19,8 +19,6 @@
   import { filterUniqueBookings } from "$lib/utils";
   import { onDestroy, onMount } from "svelte";
   import { DateTime } from "luxon";
-  import { getTokenFromCookie } from "../../../utils/jwtUtils";
-  import { getAllBookings } from "$lib/api";
   import { formatChartData, getEveryDateBetween } from "../../../utils/chartHelper";
   import CardLineChart from "../../../components/CardLineChart.svelte";
 
@@ -208,26 +206,6 @@
         el.textContent = `0${el.textContent}`.slice(-2);
         el.textContent = `${el.textContent}:00`;
       });
-  }
-
-  async function fetchAllBookings() {
-    let today = DateTime.now();
-    let token = getTokenFromCookie();
-    if (token == null || token.length === 0) {
-      console.error("No token found");
-    }
-
-    if (token && token.length > 0) {
-      const bookings: Booking[] = await getAllBookings(
-        token,
-        today.startOf("year").toJSDate().toISOString()
-      );
-      try {
-        const id = await localDb.bookings.bulkPut(bookings);
-      } catch (error) {
-        console.error(`Failed to add bookings: ${error}`);
-      }
-    }
   }
 
   onDestroy(() => {
