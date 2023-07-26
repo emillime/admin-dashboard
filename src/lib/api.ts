@@ -3,7 +3,7 @@ import { localDb } from "$lib/localDb";
 import { DateTime } from "luxon";
 
 const BASE_URL =
-  "https://923vmokr87.execute-api.eu-central-1.amazonaws.com/production";
+  "https://h2fwzu46j1.execute-api.eu-central-1.amazonaws.com/production";
 const CACHE_NAME = "admin-cache";
 
 async function fetchUseCache(
@@ -51,6 +51,23 @@ export async function authorize(
   }
 
   return data.token;
+}
+
+export async function getSuppliers(token: string): Promise<Supplier[]> {
+  const response = await fetch(`${BASE_URL}/admin/suppliers?names=true`, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to geet suppliers");
+  }
+
+  const suppliers = await response.json();
+
+  return suppliers;
 }
 
 export async function getSlots(
