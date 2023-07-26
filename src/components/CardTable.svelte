@@ -101,6 +101,11 @@
           >
             Antal
           </th>
+          <th
+            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-slate-50 text-slate-500 border-slate-100"
+          >
+            Intäkt
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -140,8 +145,16 @@
                   {product.quantity} {product.productName} <br />
                 {/each}
               </td>
+              <td
+                class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left"
+              >
+                {booking.bookingId.paidAmount.toLocaleString()} kr
+              </td>
             </tr>
           {/each}
+          <tr class="border-t border-solid border-slate-200 h-4">
+            <td colspan=100></td>
+          </tr>
           <tr>
             <td
               class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left"
@@ -160,6 +173,14 @@
               {#each Object.keys(totalUnits) as name}
                 {totalUnits[name]} {name} <br />
               {/each}
+            </td>
+            <td
+              class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap text-left"
+            >
+              {bookings.reduce(
+                (total, booking) => total + booking.bookingId.paidAmount,
+                0
+              ).toLocaleString()} kr
             </td>
           </tr>
         {/if}
