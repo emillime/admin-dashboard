@@ -8,6 +8,7 @@
   import { getTokenFromCookie } from "../../../utils/jwtUtils";
   import { getAllBookings } from "$lib/api";
   import { onMount } from "svelte";
+  import Cleaning from "../../../components/Cleaning.svelte";
 
   let start = DateTime.now().startOf("day").toJSDate();
 
@@ -42,4 +43,5 @@
 {#if $bookings}
   <GanttSchedule bind:date={start} {bookings} />
   <CardTable bind:date={start} bookings={uniqueBookings} />
+<!--  <Cleaning />-->
 {/if}
