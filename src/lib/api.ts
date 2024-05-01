@@ -1,6 +1,7 @@
 import { parseJwt } from "../utils/jwtUtils";
 import { localDb } from "$lib/localDb";
 import { DateTime } from "luxon";
+import { faCodeBranch } from "@fortawesome/free-solid-svg-icons";
 
 const BASE_URL =
   "https://h2fwzu46j1.execute-api.eu-central-1.amazonaws.com/production";
@@ -41,12 +42,13 @@ export async function authorize(
   });
 
   if (!response.ok) {
+    console.error("Failed to authorize");
     throw new Error("Failed to authorize");
   }
 
   const data = await response.json();
 
-  if (data.msg != "authorized") {
+  if (!data.msg.toLowerCase().includes("authorized")) {
     throw new Error("Failed to authorize");
   }
 
@@ -185,10 +187,31 @@ export async function updateBookings(token: string, from?: string) {
   }
 
   const bookings: Booking[] = await getAllBookings(token, from);
-  if (bookings.length > 0) {
+  const cancelled: Booking[] = await getAllBookings(token, from, undefined, 1);
+  if (bookings.length > 0 || cancelled.length > 0) {
     localStorage.setItem(
       "lastUpdated",
       DateTime.now().startOf("day").toJSDate().toISOString()
     );
   }
+}
+
+export async function getTransactions(
+  token: string,
+  bookingId: string
+): Promise<BookingTransaction[]> {
+  const url = `${BASE_URL}admin/booking-transactions/${bookingId}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: token,
+    },
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch transactions");
+  }
+
+  return response.json();
 }

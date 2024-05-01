@@ -13,6 +13,7 @@
   }
 
   function clearDb() {
+    localStorage.removeItem("lastUpdated");
     localDb.delete();
     window.location.href = "/settings";
   }

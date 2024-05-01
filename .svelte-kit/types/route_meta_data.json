@@ -4,6 +4,7 @@
 		"src/routes/+page.server.ts"
 	],
 	"/(app)/dashboard": [],
+	"/(app)/report": [],
 	"/(app)/settings": [],
 	"/(app)/today": []
 }

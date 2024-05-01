@@ -229,3 +229,21 @@ type Supplier = {
   bookingSystem: string;
   googleReviewUrl: string;
 }
+
+type BookingTransaction = {
+_id: string;
+status: string;
+createdBy: string;
+bookingId: string;
+supplierId: string;
+stripeCustomerId: string;
+stripePaymentMethod: string;
+stripeTransactionId: string;
+stripePaymentMethodType: string;
+currency: string;
+amount: number;
+balance: number;
+createdAt: string;
+updatedAt: string;
+__v: number;
+}

@@ -29,10 +29,17 @@ localDb.on("populate", async () => {
       token,
       DateTime.now().startOf("year").toJSDate().toISOString(),
     );
-    try {
+    const cancelledBookings: Booking[] = await getAllBookings(
+      token,
+      DateTime.now().startOf("year").toJSDate().toISOString(),
+      undefined,
+      1,
+    );
+    /*try {
       const id = await localDb.bookings.bulkPut(bookings);
+      await localDb.bookings.bulkPut(cancelledBookings);
     } catch (error) {
       console.error(`Failed to add bookings: ${error}`);
-    }
+    }*/
   }
 });
