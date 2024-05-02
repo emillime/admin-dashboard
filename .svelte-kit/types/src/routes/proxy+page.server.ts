@@ -15,10 +15,7 @@ export const actions = {
         const email = data.get('email')?.toString();
         const password = data.get('password')?.toString();
 
-        console.log(email, password);
-
         if (email == null || password == null || email.length === 0 || password.length === 0) {
-            console.log('fail');
             return fail(422, {
                 error: "Email eller lösenord får inte vara tomt"
             });

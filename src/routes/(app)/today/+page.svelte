@@ -43,5 +43,5 @@
 {#if $bookings}
   <GanttSchedule bind:date={start} {bookings} />
   <CardTable bind:date={start} bookings={uniqueBookings} />
-<!--  <Cleaning />-->
+  <Cleaning />
 {/if}

@@ -10,19 +10,37 @@
 
   let datePicker: HTMLElement;
   let picker: easepick.Core;
+  let cleanDate = new Date(localStorage.getItem("lastCleanDate") ?? DateTime.now().startOf("week").toJSDate());
 
-  let cleanDate = DateTime.now().startOf("week");
+  $: cleanDate && picker?.setDate(cleanDate);
 
   const token = getTokenFromCookie() ?? "";
   const slotsPromise = getSlots(token);
 
-  $: bookings = liveQuery(async () => {
-    const bookings = await localDb.bookings
+  $: stationSlots = liveQuery(async () => {
+    let bookings = await localDb.bookings
       .where("startTime")
-      .aboveOrEqual(cleanDate.toJSDate())
+      .aboveOrEqual(cleanDate)
       .and((booking) => booking.startTime <= DateTime.now().toJSDate())
       .toArray();
-    return bookings;
+
+    let slots = await slotsPromise;
+
+    return {
+      cols: getColCount(slots),
+      slot: slots
+        .map((slot) => {
+          return {
+            slot: slot.slot,
+            used: bookings.some((b) => b.productSlotId.slot === slot.slot),
+          };
+        })
+        .sort(
+          (a, b) =>
+            parseInt(b.slot[0]) - parseInt(a.slot[0]) ||
+            parseInt(a.slot[1]) - parseInt(b.slot[1])
+        ),
+    };
   });
 
   onMount(() => {
@@ -45,7 +63,6 @@
       },
       plugins: [TimePlugin],
       setup(p) {
-        p.setTime("23:00");
         p.on("render", (e) => {
           const { view, date, target } = e.detail;
           if (view === "Main") {
@@ -53,8 +70,8 @@
           }
         });
         p.on("select", (event: CustomEvent) => {
-          console.log(event.detail.date);
           cleanDate = event.detail.date;
+          localStorage.setItem("lastCleanDate", cleanDate.toISOString());
         });
       },
     });
@@ -125,19 +142,8 @@
 
     return maxCol;
   }
-
-  function isSlotUsedSinceDate(slot: string, date: DateTime) {
-    $bookings?.forEach((booking) => {
-      console.log('checking: ' + booking.productSlotId.slot);
-      if (booking.productSlotId.slot === slot) {
-        console.log('Slot ' + slot + ' is used since ' + date.toLocaleString());
-        return true;
-      }
-    });
-    console.log('Slot ' + slot + ' not used since ' + date.toLocaleString());
-    return false;
-  }
 </script>
+
 <div class="flex justify-center align-middle">
   <input
     bind:this={datePicker}
@@ -145,15 +151,16 @@
     class="w-64 h-10 px-3 mb-3 min-w-[300px] text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
   />
 </div>
-{#await slotsPromise}
-  <p>laddar...</p>
-{:then slots}
-
+{#if $stationSlots}
   <!-- The below comment is needed to generate the classes -->
   <!-- Can be grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5 grid-cols-6 grid-cols-7 grid-cols-8 grid-cols-9 grid-cols-10 grid-cols-11 grid-cols-12 -->
-  <div class="grid grid-cols-{getColCount(slots)} gap-2 w-fit">
-    {#each slots.sort((a, b) => parseInt(b.slot[0]) - parseInt(a.slot[0]) || parseInt(a.slot[1]) - parseInt(b.slot[1])) as slot}
-      <div class={`${isSlotUsedSinceDate(slot.slot, cleanDate) ? 'bg-red-600' : 'bg-sky-600'} p-5 aspect-square`}>{slot.slot}</div>
+  <div class="grid grid-cols-{$stationSlots.cols} gap-2 w-fit mx-auto">
+    {#each $stationSlots.slot as slot}
+      <div class={`${slot.used ? "bg-red-600" : "bg-sky-600"} p-5 aspect-square`}>
+        {slot.slot}
+      </div>
     {/each}
   </div>
-{/await}
+{:else}
+  <p>laddar...</p>
+{/if}
