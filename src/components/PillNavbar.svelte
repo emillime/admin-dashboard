@@ -27,13 +27,13 @@
 	];
 </script>
 
-<nav class="flex flex-nowrap justify-center">
-	<ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row w-11/12">
+<nav class="flex justify-center items-center">
+	<ul class="flex flex-wrap justify-start items-center gap-2 list-none w-11/12 m-3">
 		{#each menuItems as item (item.path)}
-			<li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+			<li class="flex-auto text-center">
 				<a
 					href={item.path}
-					class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal {$page
+					class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal whitespace-nowrap {$page
 						.url.pathname === item.path
 						? 'text-white bg-sky-600'
 						: 'text-sky-600 bg-white'}"
