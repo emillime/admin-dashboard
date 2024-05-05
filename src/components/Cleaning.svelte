@@ -10,7 +10,10 @@
 
   let datePicker: HTMLElement;
   let picker: easepick.Core;
-  let cleanDate = new Date(localStorage.getItem("lastCleanDate") ?? DateTime.now().startOf("week").toJSDate());
+  let cleanDate = new Date(
+    localStorage.getItem("lastCleanDate") ??
+      DateTime.now().startOf("week").toJSDate()
+  );
 
   $: cleanDate && picker?.setDate(cleanDate);
 
@@ -144,19 +147,25 @@
   }
 </script>
 
-<div class="flex justify-center align-middle">
+<div class="flex justify-center items-center mt-5">
+  <label for="cleandate" class="mr-3">Senast städat:</label>
   <input
     bind:this={datePicker}
     placeholder="Datum"
-    class="w-64 h-10 px-3 mb-3 min-w-[300px] text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
+    class="w-64 h-10 px-3 min-w-[300px] text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
+    name="cleandate"
   />
 </div>
 {#if $stationSlots}
   <!-- The below comment is needed to generate the classes -->
   <!-- Can be grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5 grid-cols-6 grid-cols-7 grid-cols-8 grid-cols-9 grid-cols-10 grid-cols-11 grid-cols-12 -->
-  <div class="grid grid-cols-{$stationSlots.cols} gap-2 w-fit mx-auto">
+  <div class="grid grid-cols-{$stationSlots.cols} gap-2 w-fit mx-auto p-5">
     {#each $stationSlots.slot as slot}
-      <div class={`${slot.used ? "bg-red-500" : "bg-sky-500"} p-5 aspect-square rounded-sm`}>
+      <div
+        class={`${
+          slot.used ? "bg-red-500" : "bg-sky-500"
+        } p-5 aspect-square rounded-sm`}
+      >
         {slot.slot}
       </div>
     {/each}
