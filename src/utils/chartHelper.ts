@@ -21,6 +21,9 @@ export function formatChartData(
   bookings.forEach((booking) => {
     const startTime = DateTime.fromJSDate(booking.startTime);
     const dateKey = startTime.startOf(groupBy).toJSDate();
+    if(groupedData[dateKey.toString()] == null) {
+      return;
+    }
     groupedData[dateKey.toString()].y += booking.bookingId.paidAmount;
   });
 

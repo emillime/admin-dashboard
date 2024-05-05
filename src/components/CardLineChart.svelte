@@ -7,7 +7,7 @@
 
   export let data: { x: number; y: number }[] = []
 
-  let lineChartCanvas;
+  let lineChartCanvas: HTMLCanvasElement;
   let myChart: Chart;
 
   let config: ChartConfiguration = {

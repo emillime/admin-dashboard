@@ -10,8 +10,6 @@
   $: chartData = formatChartData(bookings, "day") ?? [];
 </script>
 
-{@debug chartData}
-
 {#if chartData.length > 0}
   <CardLineChart bind:data={chartData} />
 {/if}

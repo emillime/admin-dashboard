@@ -26,16 +26,16 @@
 
   let datePicker: HTMLElement;
   let datePickerEnd: HTMLElement;
+
   let startDate: Date = DateTime.now().startOf("week").toJSDate();
   let endDate: Date = DateTime.fromJSDate(startDate).endOf("week").toJSDate();
 
   $: bookings = liveQuery(async () => {
-    const bookings = await localDb.bookings
+    return localDb.bookings
       .where("startTime")
       .aboveOrEqual(startDate)
       .and((booking) => booking.startTime <= endDate)
       .toArray();
-    return bookings;
   });
 
   $: uniqueBookings = filterUniqueBookings($bookings ?? []);
