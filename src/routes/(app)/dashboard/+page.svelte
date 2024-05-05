@@ -19,7 +19,10 @@
   import { filterUniqueBookings } from "$lib/utils";
   import { onDestroy, onMount } from "svelte";
   import { DateTime } from "luxon";
-  import { formatChartData, getEveryDateBetween } from "../../../utils/chartHelper";
+  import {
+    formatChartData,
+    getEveryDateBetween,
+  } from "../../../utils/chartHelper";
   import CardLineChart from "../../../components/CardLineChart.svelte";
 
   let picker: easepick.Core;
@@ -59,8 +62,8 @@
     {}
   );
 
-  $: chartData = formatChartData(startDate, endDate, uniqueBookings, "day") ?? [];
-//  $: chartDays = getEveryDateBetween(startDate, endDate, "day");
+  $: chartData =
+    formatChartData(startDate, endDate, uniqueBookings, "day") ?? [];
 
   function getSalesIcon(amount: number): IconDefinition {
     switch (true) {
@@ -230,25 +233,26 @@
     class="w-64 h-10 px-3 mb-3 min-w-[300px] text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
   />
 </div>
-<div class="flex flex-row flex-wrap justify-evenly">
-  <CardStats
-    statSubtitle="Ordrar"
-    statTitle={uniqueBookings.length.toString()}
-  />
-  <CardStats
-    statSubtitle="Snittorder"
-    statTitle={getAvgSales(totalSales, uniqueBookings.length).toLocaleString() +
-      " kr"}
-    statIcon={getSalesIcon(getAvgSales(totalSales, uniqueBookings.length))}
-  />
-  {#each Object.keys(totalUnits) as name}
-    <CardStats statTitle={totalUnits[name].toString()} statSubtitle={name} />
-  {/each}
-  <CardStats
-    statSubtitle="Intäkter"
-    statTitle={totalSales.toLocaleString() + " kr"}
-    statIcon={getSalesIcon(totalSales)}
-  />
-</div>
+  <div class="flex flex-wrap justify-center items-center gap-2 mb-3">
+    <CardStats
+      statSubtitle="Ordrar"
+      statTitle={uniqueBookings.length.toString()}
+    />
+    <CardStats
+      statSubtitle="Snittorder"
+      statTitle={getAvgSales(
+        totalSales,
+        uniqueBookings.length
+      ).toLocaleString() + " kr"}
+      statIcon={getSalesIcon(getAvgSales(totalSales, uniqueBookings.length))}
+    />
+    {#each Object.keys(totalUnits) as name}
+      <CardStats statTitle={totalUnits[name].toString()} statSubtitle={name} />
+    {/each}
+    <CardStats
+      statSubtitle="Intäkter"
+      statTitle={totalSales.toLocaleString() + " kr"}
+      statIcon={getSalesIcon(totalSales)}
+    />
+  </div>
 <CardLineChart data={chartData} />
-<!--<Dashboard bookings={uniqueBookings} />-->
