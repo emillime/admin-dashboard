@@ -10,7 +10,7 @@ export class MySubClassedDexie extends Dexie {
     super("operatorDatabase");
     this.version(1).stores({
       bookings:
-        "_id, bookingId.orderNumber, startTime, endTime, productSlotId.slot", // Primary key and indexed props
+        "_id, bookingId.orderNumber, startTime, endTime, productSlotId.slot, cancelled", // Primary key and indexed props
     });
   }
 }

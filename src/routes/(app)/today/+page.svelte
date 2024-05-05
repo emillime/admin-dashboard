@@ -22,6 +22,7 @@
       .toArray();
   });
 
+  $: activeBookings = $bookings != null ? $bookings.filter((booking) => !booking.cancelled) : [];
   $: uniqueBookings = $bookings != null ? filterUniqueBookings($bookings) : [];
 
   function fetchTodaysBookings() {
@@ -41,7 +42,7 @@
 </script>
 
 {#if $bookings}
-  <GanttSchedule bind:date={start} {bookings} />
+  <GanttSchedule bind:date={start} bookings={activeBookings} />
   <CardTable bind:date={start} bookings={uniqueBookings} />
   <Cleaning />
 {/if}

@@ -13,7 +13,7 @@
   import { percentOfPeriodDone } from "$lib/utils";
 
   export let date: Date;
-  export let bookings: Observable<Booking[]>;
+  export let bookings: Booking[];
   let SvelteGantt;
   let SvelteGanttTable;
 
@@ -25,7 +25,7 @@
   let currentTime = DateTime.now().toMillis();
   let intervalId: number;
 
-  $: tasks = $bookings?.map((booking, index) => {
+  $: tasks = bookings?.map((booking, index) => {
     return (
       {
         id: index,
@@ -34,11 +34,12 @@
           booking.startTime.getTime(),
           booking.endTime.getTime()
         ),
-        from: booking.startTime,
-        to: booking.endTime,
+        from: booking.startTime.getTime(),
+        to: booking.endTime.getTime(),
         label: `${booking.bookingId.customerInfo.firstName} ${booking.bookingId.customerInfo.lastName}`,
         showButton: false,
         enableDragging: false,
+        enableResize: false,
         resourceId: Number(booking.productSlotId.slot),
         classes: "border-separator",
       } ?? []
@@ -57,7 +58,7 @@
           from: currentTime,
           to: currentTime + 60000,
           label: "Nu",
-          enableResizing: false,
+          resizable: false,
         },
       ],
     });
@@ -80,7 +81,6 @@
           from: currentTime,
           to: currentTime + 60000,
           label: "Nu",
-          enableResizing: false,
         },
       ],
       columnUnit: "hour",
