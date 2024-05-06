@@ -135,6 +135,14 @@ export async function getBookings(
       endTime: new Date(b?.endTime),
       startTimeLocal: new Date(b?.startTimeLocal),
       endTimeLocal: new Date(b?.endTimeLocal),
+      bookingId: {
+        ...b?.bookingId,
+        completedAt: new Date(b?.bookingId?.completedAt),
+        createdAt: new Date(b?.bookingId?.createdAt),
+        updatedAt: new Date(b?.bookingId?.updatedAt),
+        modifiedAt: new Date(b?.bookingId?.modifiedAt),
+        transactionLastUpdated: new Date(b?.bookingId?.transactionLastUpdated), 
+      }
     };
   });
 }
@@ -175,6 +183,8 @@ export async function getAllBookings(
 
   // Store in local db
   localDb.bookings.bulkPut(allBookings);
+  console.log(allBookings);
+  console.log("Stored bookings in local db");
 
   return allBookings;
 }

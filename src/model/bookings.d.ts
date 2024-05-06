@@ -60,9 +60,9 @@ type Booking = {
     customerBookingEmail: boolean;
     operatorBookingEmail: boolean;
     supplierId: string;
-    modifiedAt: string;
-    createdAt: string;
-    updatedAt: string;
+    modifiedAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
     __v: number;
     couponAmount: number;
     currency: string;
@@ -72,13 +72,15 @@ type Booking = {
     totalAmount: number;
     totalCurrency: string;
     totalTaxWithoutCoupon: number;
-    completedAt: string;
+    completedAt: Date;
     customerId: string;
     stripeCustomerId: string;
     stripePaymentMethod: string;
     stripePaymentNumber: string;
-    transactionLastUpdated: string;
+    transactionLastUpdated: Date;
+    transactions: BookingTransaction[];
   };
+
   productId: {
     _id: string;
     rezdyProductCode: string;
@@ -231,19 +233,19 @@ type Supplier = {
 }
 
 type BookingTransaction = {
-_id: string;
-status: string;
-createdBy: string;
-bookingId: string;
-supplierId: string;
-stripeCustomerId: string;
-stripePaymentMethod: string;
-stripeTransactionId: string;
-stripePaymentMethodType: string;
-currency: string;
-amount: number;
-balance: number;
-createdAt: string;
-updatedAt: string;
-__v: number;
+  _id: string;
+  status: string;
+  createdBy: string;
+  bookingId: string;
+  supplierId: string;
+  stripeCustomerId: string;
+  stripePaymentMethod: string;
+  stripeTransactionId: string;
+  stripePaymentMethodType: string;
+  currency: string;
+  amount: number;
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
