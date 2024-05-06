@@ -36,8 +36,7 @@
   $: bookings = liveQuery(async () => {
     return localDb.bookings
       .where("startTime")
-      .aboveOrEqual(startDate)
-      .and((booking) => booking.startTime <= endDate)
+      .between(startDate, endDate, true, true)
       .toArray();
   });
 
