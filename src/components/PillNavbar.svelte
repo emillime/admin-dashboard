@@ -1,16 +1,17 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import {
-		faListUl,
 		faChartLine,
 		faBriefcase,
-		type IconDefinition
+		faCalendar,
+		faFileInvoiceDollar,
+		type IconDefinition,
 	} from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/stores';
 
 	const menuItems: { icon: IconDefinition; text: string; path: string }[] = [
 		{
-			icon: faListUl,
+			icon: faCalendar,
 			text: 'Dagens',
 			path: '/today'
 		},
@@ -20,10 +21,15 @@
 			path: '/dashboard'
 		},
 		{
+			icon: faFileInvoiceDollar,
+			text: 'Avstämning',
+			path: '/report'
+		},
+		{
 			icon: faBriefcase,
 			text: 'Inställningar',
 			path: '/settings'
-		}
+		},
 	];
 </script>
 

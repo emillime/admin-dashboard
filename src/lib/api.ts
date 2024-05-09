@@ -183,8 +183,6 @@ export async function getAllBookings(
 
   // Store in local db
   localDb.bookings.bulkPut(allBookings);
-  console.log(allBookings);
-  console.log("Stored bookings in local db");
 
   return allBookings;
 }
@@ -210,7 +208,7 @@ export async function getTransactions(
   token: string,
   bookingId: string
 ): Promise<BookingTransaction[]> {
-  const url = `${BASE_URL}admin/booking-transactions/${bookingId}`;
+  const url = `${BASE_URL}/admin/booking-transactions/${bookingId}`;
 
   const response = await fetch(url, {
     headers: {

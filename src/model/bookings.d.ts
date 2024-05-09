@@ -78,7 +78,7 @@ type Booking = {
     stripePaymentMethod: string;
     stripePaymentNumber: string;
     transactionLastUpdated: Date;
-    transactions: BookingTransaction[];
+    transactions?: BookingTransaction[];
   };
 
   productId: {
