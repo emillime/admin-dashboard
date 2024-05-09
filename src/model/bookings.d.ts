@@ -16,7 +16,7 @@ type BookingCustomerInfo = {
 
 type BookingPriceObject = {
   coupon: boolean;
-  couponCode: string;
+  couponCode?: string;
   products: {
     [productId: string]: {
       quantity: number;
@@ -64,6 +64,7 @@ type Booking = {
     createdAt: Date;
     updatedAt: Date;
     __v: number;
+    coupon?: string;
     couponAmount: number;
     currency: string;
     detailsPaymentObject: BookingDetailsPaymentObject;

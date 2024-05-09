@@ -6,16 +6,34 @@
   import {
     bookingToBookingReport,
     filterUniqueBookings,
+    formatNumber,
     hasNewTransactions,
   } from "$lib/utils";
   import { writable } from "svelte/store";
+  import { addHiddenColumns } from "svelte-headless-table/plugins";
   import { Render, Subscribe, createTable } from "svelte-headless-table";
+  import { liveQuery } from "dexie";
 
   let month = DateTime.now().minus({ month: 1 }).toFormat("yyyy-MM");
 
+  $: start = DateTime.fromFormat(month, "yyyy-MM").startOf("month").toJSDate();
+  $: end = DateTime.fromFormat(month, "yyyy-MM").endOf("month").toJSDate();
+
+  $: bookings = liveQuery(async () => {
+    return localDb.bookings
+      .where("bookingId.completedAt")
+      .between(start, end, true, true)
+      .toArray();
+  });
+
+  $: generateReport($bookings);
+
   const data = writable<BookingReport[]>([]);
 
-  const table = createTable(data);
+  const table = createTable(data, {
+    hiddenCols: addHiddenColumns(),
+  });
+
   const columns = table.createColumns([
     table.column({
       header: "Ordernummer",
@@ -79,26 +97,43 @@
     }),
   ]);
 
-  const { headerRows, rows, tableAttrs, tableBodyAttrs } =
-    table.createViewModel(columns);
+  const {
+    headerRows,
+    rows,
+    tableAttrs,
+    tableBodyAttrs,
+    flatColumns,
+    pluginStates,
+  } = table.createViewModel(columns);
 
-  // USE: booking.bookingId.paidAmount
-  async function generate() {
-    let start = DateTime.fromFormat(month, "yyyy-MM")
-      .startOf("month")
-      .toJSDate();
-    let end = DateTime.fromFormat(month, "yyyy-MM").endOf("month").toJSDate();
-    let bookings = await localDb.bookings
-      .where("bookingId.completedAt")
-      .between(start, end, true, true)
-      .toArray();
+  const { hiddenColumnIds } = pluginStates.hiddenCols;
+
+  const colIds = flatColumns.map((c) => c.id);
+  const colIdName = Object.fromEntries(
+    flatColumns.map((c) => [c.id, c.header])
+  );
+
+  let showColForId = Object.fromEntries(colIds.map((id) => [id, true]));
+
+  $: $hiddenColumnIds = Object.entries(showColForId)
+    .filter(([, show]) => !show)
+    .map(([id]) => id);
+
+  let showFilters = false;
+
+  async function generateReport(bookings: Booking[]) {
+    console.log("Generating report for bookings: ", bookings);
+
+    if (bookings == null || bookings.length === 0) {
+      data.set([]);
+      return;
+    }
 
     let uniqueBookings = filterUniqueBookings(bookings);
 
     uniqueBookings = await Promise.all(
       uniqueBookings.map(async (booking) => {
         if (!hasNewTransactions(booking)) {
-          console.log("No new transactions for booking: ", booking);
           return booking;
         }
         let transactions = await getTransactions(
@@ -117,19 +152,85 @@
 
     let rows = uniqueBookings.map(bookingToBookingReport);
 
+    let totals = rows.reduce(
+      (acc, row) => {
+        acc.totalAmount += parseFloat(row.totalAmount) || 0;
+        acc.paidAmount += parseFloat(row.paidAmount) || 0;
+        acc.paidTax += parseFloat(row.paidTax) || 0;
+        acc.refundAmount += parseFloat(row.refundAmount) || 0;
+        acc.refundTax += parseFloat(row.refundTax) || 0;
+        acc.extraAmount += parseFloat(row.extraAmount) || 0;
+        acc.extraTax += parseFloat(row.extraTax) || 0;
+        acc.couponAmount += parseFloat(row.couponAmount) || 0;
+        acc.finalPaymentAmount += parseFloat(row.finalPaymentAmount) || 0;
+        acc.finalTaxAmount += parseFloat(row.finalTaxAmount) || 0;
+        acc.estimadedFee += parseFloat(row.estimadedFee) || 0;
+        return acc;
+      },
+      {
+        totalAmount: 0,
+        paidAmount: 0,
+        paidTax: 0,
+        refundAmount: 0,
+        refundTax: 0,
+        extraAmount: 0,
+        extraTax: 0,
+        couponAmount: 0,
+        finalPaymentAmount: 0,
+        finalTaxAmount: 0,
+        estimadedFee: 0,
+      }
+    );
+
+    let totalRow: BookingReport = {
+      orderNumber: "Totalt",
+      completedAt: "",
+      customerName: "",
+      coupon: "",
+      totalAmount: formatNumber(totals.totalAmount),
+      paidAmount: formatNumber(totals.paidAmount),
+      paidTax: formatNumber(totals.paidTax),
+      refundAmount: formatNumber(totals.refundAmount),
+      refundTax: formatNumber(totals.refundTax),
+      extraAmount: formatNumber(totals.extraAmount),
+      extraTax: formatNumber(totals.extraTax),
+      couponAmount: formatNumber(totals.couponAmount),
+      finalPaymentAmount: formatNumber(totals.finalPaymentAmount),
+      finalTaxAmount: formatNumber(totals.finalTaxAmount),
+      estimadedFee: formatNumber(totals.estimadedFee),
+    };
+
+    rows.push(totalRow);
+
     data.set(rows);
   }
 </script>
 
+<div class="flex justify-center items-center">
 <input
   type="month"
   bind:value={month}
-  class="ml-10 p-3 text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
+  class="p-3 text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
 />
 <button
-  class="ml-10 bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded"
-  on:click={generate}>Generate</button
+  class="p-3 text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
+  on:click={() => (showFilters = !showFilters)}
 >
+  {showFilters ? "Dölj filter" : "Visa filter"}
+</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+{#if showFilters}
+  {#each colIds as id}
+    <div>
+      <input id="hide-{id}" type="checkbox" bind:checked={showColForId[id]} />
+      <label for="hide-{id}">{colIdName[id]}</label>
+    </div>
+  {/each}
+{/if}
+</div>
+
+
 <div class="w-full overflow-x-auto">
   <table class="w-full bg-transparent border-collapse" {...$tableAttrs}>
     <thead>
@@ -156,7 +257,10 @@
           <tr {...rowAttrs}>
             {#each row.cells as cell (cell.id)}
               <Subscribe attrs={cell.attrs()} let:attrs>
-                <td class="border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left" {...attrs}>
+                <td
+                  class="border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left"
+                  {...attrs}
+                >
                   <Render of={cell.render()} />
                 </td>
               </Subscribe>
