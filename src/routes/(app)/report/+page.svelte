@@ -204,6 +204,26 @@
 
     data.set(rows);
   }
+
+  function downloadCSV() {
+    let csv = "data:text/csv;charset=utf-8,";
+
+    csv += Object.values(["Datum", "Ordernummer", "Betalat"]).join(",") + "\n";
+
+    data.update((rows) => {
+      rows.forEach((row) => {
+        csv += Object.values([row.completedAt, row.orderNumber, row.finalPaymentAmount]).join(",") + "\n";
+      });
+      return rows;
+    });
+
+    let encodedUri = encodeURI(csv);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "report.csv");
+    document.body.appendChild(link);
+    link.click();
+  }
 </script>
 
 <div class="flex justify-center items-center">
@@ -218,6 +238,10 @@
 >
   {showFilters ? "Dölj filter" : "Visa filter"}
 </button>
+<button
+  class="p-3 text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
+  on:click={downloadCSV}
+>Ladda ner csv</button>
 </div>
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
 {#if showFilters}

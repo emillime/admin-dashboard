@@ -31,7 +31,7 @@ export function bookingToBookingReport(booking: Booking): BookingReport {
         coupon: booking.bookingId.priceObject?.couponCode ?? booking.bookingId?.coupon ?? "",
         finalPaymentAmount: formatNumber(finalPaymentAmount),
         finalTaxAmount: formatNumber(finalPaymentAmount * 0.2),
-        estimadedFee: formatNumber(booking.bookingId.paidAmount * 0.015)
+        estimadedFee:formatNumber(booking.bookingId.paidAmount == 0 ? 0 : booking.bookingId.paidAmount * 0.015 + 1.8)
     }
 
     return report;
