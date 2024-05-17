@@ -35,7 +35,7 @@
         .map((slot) => {
           return {
             slot: slot.slot,
-            used: bookings.some((b) => b.productSlotId.slot === slot.slot),
+            uses: bookings.filter((b) => b.productSlotId.slot === slot.slot).length,
           };
         })
         .sort(
@@ -163,10 +163,11 @@
     {#each $stationSlots.slot as slot}
       <div
         class={`${
-          slot.used ? "bg-red-500" : "bg-sky-500"
-        } p-5 aspect-square rounded-sm`}
+          slot.uses > 0 ? "bg-red-500" : "bg-sky-500"
+        } p-5 aspect-square rounded-sm flex flex-col justify-center items-center relative text-white text-2xl font-bold`}
       >
-        {slot.slot}
+      {slot.slot}
+      <span class="text-white text-xs">({slot.uses})</span>
       </div>
     {/each}
   </div>
