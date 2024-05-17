@@ -40,7 +40,7 @@
 				<a
 					href={item.path}
 					class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal whitespace-nowrap {$page
-						.url.pathname === item.path
+						.url.pathname.startsWith(item.path)
 						? 'text-white bg-sky-600'
 						: 'text-sky-600 bg-white'}"
 				>

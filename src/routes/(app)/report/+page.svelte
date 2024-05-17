@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { getTransactions } from "$lib/api";
+  import { getCoupons, getTransactions } from "$lib/api";
   import { localDb } from "$lib/localDb";
   import { DateTime } from "luxon";
-  import { getTokenFromCookie } from "../../../utils/jwtUtils";
+  import { getTokenFromCookie, parseJwt } from "../../../utils/jwtUtils";
   import {
     bookingToBookingReport,
     filterUniqueBookings,
@@ -10,6 +10,7 @@
     hasNewTransactions,
   } from "$lib/utils";
   import { writable } from "svelte/store";
+  import { page } from '$app/stores';
   import { addHiddenColumns } from "svelte-headless-table/plugins";
   import { Render, Subscribe, createTable } from "svelte-headless-table";
   import { liveQuery } from "dexie";
@@ -26,7 +27,7 @@
       .toArray();
   });
 
-  $: generateReport($bookings);
+  $: generateBookingReport($bookings);
 
   const data = writable<BookingReport[]>([]);
 
@@ -121,8 +122,7 @@
 
   let showFilters = false;
 
-  async function generateReport(bookings: Booking[]) {
-    console.log("Generating report for bookings: ", bookings);
+  async function generateBookingReport(bookings: Booking[]) {
 
     if (bookings == null || bookings.length === 0) {
       data.set([]);
@@ -225,6 +225,15 @@
     link.click();
   }
 </script>
+
+<div class="flex p-3 justify-center items-center drop-shadow">
+  <a href="/report" class="p-3 rounded-l-md {$page.url.pathname === '/report'
+  ? 'bg-slate-200'
+  : 'bg-slate-100'}">Bokningar</a>
+  <a href="/report/coupons" class="p-3 border-l-0 rounded-r-md {$page.url.pathname === '/report/coupons'
+    ? 'bg-slate-200'
+    : 'bg-slate-100'}">Flexkort</a>
+</div>
 
 <div class="flex justify-center items-center">
 <input

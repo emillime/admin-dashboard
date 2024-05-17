@@ -1,16 +1,18 @@
 import Dexie, { type Table } from "dexie";
 import { getTokenFromCookie } from "../utils/jwtUtils";
-import { getAllBookings } from "$lib/api";
+import { getAllBookings, getCoupons } from "$lib/api";
 import { DateTime } from "luxon";
 
 export class MySubClassedDexie extends Dexie {
   bookings!: Table<Booking>;
+  coupons!: Table<Coupon>;
 
   constructor() {
     super("operatorDatabase");
     this.version(1).stores({
       bookings:
-        "_id, bookingId.orderNumber, bookingId.completedAt, startTime, endTime, productSlotId.slot, cancelled", // Primary key and indexed props
+        "_id, bookingId.orderNumber, bookingId.coupon, bookingId.completedAt, startTime, endTime, productSlotId.slot, cancelled", // Primary key and indexed props
+      coupons: "_id, code, fromDate, toDate, createdAt", 
     });
   }
 }
@@ -35,5 +37,6 @@ localDb.on("populate", async () => {
       undefined,
       1,
     );
+    const allCoupons: Coupon[] = await getCoupons(token);
   }
 });

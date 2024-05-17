@@ -141,10 +141,50 @@ export async function getBookings(
         createdAt: new Date(b?.bookingId?.createdAt),
         updatedAt: new Date(b?.bookingId?.updatedAt),
         modifiedAt: new Date(b?.bookingId?.modifiedAt),
-        transactionLastUpdated: new Date(b?.bookingId?.transactionLastUpdated), 
-      }
+        transactionLastUpdated: new Date(b?.bookingId?.transactionLastUpdated),
+      },
     };
   });
+}
+
+export async function getCoupons(
+  token: string,
+  supplierId?: string
+): Promise<Coupon[]> {
+  const queryParams = new URLSearchParams({
+    ...(supplierId && { supplierId })
+  });
+
+  const response = await fetch(
+    `${BASE_URL}/admin/coupons?${queryParams.toString()}`,
+    {
+      headers: {
+        Authorization: token,
+      },
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch coupons");
+  }
+
+  const data = await response.json();
+
+  const coupons: Coupon[] = data.map((c: any) => {
+    return {
+      ...c,
+      fromDate: new Date(c.fromDate),
+      toDate: new Date(c.toDate),
+      paddleDateFrom: new Date(c.paddleDateFrom),
+      paddleDateTo: new Date(c.paddleDateTo),
+      createdAt: new Date(c.createdAt),
+      updatedAt: new Date(c.updatedAt),
+    };
+  });
+
+  localDb.coupons.bulkPut(coupons);
+  return coupons;
 }
 
 export async function getAllBookings(

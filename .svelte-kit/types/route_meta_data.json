@@ -5,6 +5,7 @@
 	],
 	"/(app)/dashboard": [],
 	"/(app)/report": [],
+	"/(app)/report/coupons": [],
 	"/(app)/settings": [],
 	"/(app)/today": []
 }

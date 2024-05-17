@@ -1,5 +1,3 @@
-import type { RequestEvent } from "@sveltejs/kit";
-
 type Token = {
     name: string,
     email: string,
