@@ -21,11 +21,11 @@
 			text: 'Statistik',
 			path: '/dashboard'
 		},
-		{
+		/*{
 			icon: faUser,
 			text: 'Kunder',
 			path: '/customers'
-		},
+		},*/
 		{
 			icon: faFileInvoiceDollar,
 			text: 'Avstämning',
