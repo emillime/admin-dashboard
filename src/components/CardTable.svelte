@@ -106,6 +106,11 @@
           >
             Intäkt
           </th>
+          <th
+          class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-slate-50 text-slate-500 border-slate-100"
+        >
+          Rabattkod
+        </th>
         </tr>
       </thead>
       <tbody>
@@ -150,6 +155,11 @@
               >
                 {booking.bookingId.paidAmount.toLocaleString()} kr
               </td>
+              <td
+              class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left"
+            >
+              {booking.bookingId.priceObject?.couponCode ?? booking.bookingId?.coupon ?? ""}
+            </td>
             </tr>
           {/each}
           <tr class="border-t border-solid border-slate-200 h-4">

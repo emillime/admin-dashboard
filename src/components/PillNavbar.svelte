@@ -6,6 +6,7 @@
 		faCalendar,
 		faFileInvoiceDollar,
 		type IconDefinition,
+		faUser,
 	} from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/stores';
 
@@ -19,6 +20,11 @@
 			icon: faChartLine,
 			text: 'Statistik',
 			path: '/dashboard'
+		},
+		{
+			icon: faUser,
+			text: 'Kunder',
+			path: '/customers'
 		},
 		{
 			icon: faFileInvoiceDollar,

@@ -3,6 +3,7 @@
 	"/": [
 		"src/routes/+page.server.ts"
 	],
+	"/(app)/customers": [],
 	"/(app)/dashboard": [],
 	"/(app)/report": [],
 	"/(app)/report/coupons": [],
