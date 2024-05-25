@@ -24,12 +24,6 @@
       .toArray();
   });
 
-  $: { 
-    console.log("Bookings", $bookings); 
-    console.log("Current Supplier", $currentSupplier);
-    console.log("Filter: ", $currentSupplier != null ? "62babb55bbf1ffbdefe9eb1b" === $currentSupplier?._id : true);
-  };
-
   $: activeBookings = $bookings != null ? $bookings.filter((booking) => !booking.cancelled) : [];
   $: uniqueBookings = $bookings != null ? filterUniqueBookings($bookings) : [];
 
