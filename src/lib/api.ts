@@ -1,7 +1,8 @@
 import { parseJwt } from "../utils/jwtUtils";
 import { localDb } from "$lib/localDb";
 import { DateTime } from "luxon";
-import { faCodeBranch } from "@fortawesome/free-solid-svg-icons";
+import { get } from 'svelte/store';
+import { currentSupplier } from "../stores/stores";
 
 const BASE_URL =
   "https://h2fwzu46j1.execute-api.eu-central-1.amazonaws.com/production";
@@ -64,7 +65,7 @@ export async function getSuppliers(token: string): Promise<Supplier[]> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to geet suppliers");
+    throw new Error("Failed to get suppliers");
   }
 
   const suppliers = await response.json();
@@ -79,7 +80,7 @@ export async function getSlots(
   const tokenData = parseJwt(token);
   // TODO: Select correct supplier id
   const url = `${BASE_URL}/admin/slots/${
-    supplierId || tokenData.supplierIds[0]
+    supplierId || get(currentSupplier)?._id || tokenData.supplierIds[0]
   }`;
 
   const response = await fetchUseCache(url, {

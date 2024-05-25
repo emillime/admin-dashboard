@@ -9,6 +9,7 @@
   import { getAllBookings } from "$lib/api";
   import { onMount } from "svelte";
   import Cleaning from "../../../components/Cleaning.svelte";
+  import { currentSupplier } from "../../../stores/stores";
 
   let start = DateTime.now().startOf("day").toJSDate();
 
@@ -16,11 +17,18 @@
 
   $: bookings = liveQuery(async () => {
     return localDb.bookings
-      .where("startTime")
+      .where("endTime")
       .aboveOrEqual(start)
-      .and((booking) => booking.startTime <= end)
+      .and((b) => b.startTime <= end)
+      .and((b) => $currentSupplier != null ? b.supplierId._id === $currentSupplier?._id : true)
       .toArray();
   });
+
+  $: { 
+    console.log("Bookings", $bookings); 
+    console.log("Current Supplier", $currentSupplier);
+    console.log("Filter: ", $currentSupplier != null ? "62babb55bbf1ffbdefe9eb1b" === $currentSupplier?._id : true);
+  };
 
   $: activeBookings = $bookings != null ? $bookings.filter((booking) => !booking.cancelled) : [];
   $: uniqueBookings = $bookings != null ? filterUniqueBookings($bookings) : [];

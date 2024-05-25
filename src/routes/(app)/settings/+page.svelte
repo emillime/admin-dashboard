@@ -1,12 +1,14 @@
 <script lang="ts">
   import { getSuppliers } from "$lib/api";
   import { localDb } from "$lib/localDb";
+  import { currentSupplier } from "../../../stores/stores";
   import {
     getTokenFromCookie,
     removeTokenCookie,
   } from "../../../utils/jwtUtils";
 
   let stationsPromise = getStations();
+
   function logout() {
     removeTokenCookie();
     window.location.href = "/";
@@ -21,7 +23,9 @@
   async function getStations() {
     const token = getTokenFromCookie() ?? "";
     const stations = await getSuppliers(token);
-    console.log(stations);
+    if ($currentSupplier == null) {
+      $currentSupplier = stations[0];
+    }
     return stations;
   }
 </script>
@@ -39,9 +43,9 @@
   <p>laddar stationer...</p>
 {:then stations}
   <label for="station">Visa data från:</label>
-  <select name="station" id="station">
+  <select bind:value={$currentSupplier} name="station" id="station">
     {#each stations as station}
-      <option value={station._id}>{station.name}</option>
+      <option value={station}>{station.name}</option>
     {/each}
   </select>
 {/await}
