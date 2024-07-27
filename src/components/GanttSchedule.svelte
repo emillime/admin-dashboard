@@ -36,7 +36,7 @@
         ),
         from: booking.startTime.getTime(),
         to: booking.endTime.getTime(),
-        label: `${booking.bookingId.customerInfo.firstName} ${booking.bookingId.customerInfo.lastName}`,
+        label: `${booking.bookingId.customerInfo.firstName ?? ""} ${booking.bookingId.customerInfo.lastName ?? ""}`,
         showButton: false,
         enableDragging: false,
         enableResize: false,

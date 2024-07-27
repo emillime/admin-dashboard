@@ -15,12 +15,11 @@
   import { Render, Subscribe, createTable } from "svelte-headless-table";
   import { liveQuery } from "dexie";
 
-  $: bookings = liveQuery(async () => {
-    return filterUniqueBookings(await localDb.bookings
-      .toArray());
+  $: allBookings = liveQuery(async () => {
+    return filterUniqueBookings(await localDb.bookings.toArray());
   });
 
-  $: generateCustomerReport($bookings);
+  $: generateCustomerReport($allBookings);
 
   const data = writable<CustomerReport[]>([]);
 
@@ -75,7 +74,7 @@
 
   let showFilters = false;
 
-  async function generateCustomerReport(bookings: Booking[]) {
+  async function generateCustomerReport(bookings?: Booking[]) {
 
     if (bookings == null || bookings.length === 0) {
       data.set([]);
@@ -103,7 +102,7 @@
     // Save all unique customers to a mab and aggregate the bookings
     let customerMap = new Map<string, CustomerReport>();
     bookings.forEach((booking) => {
-      let email = booking.bookingId.customerInfo.email;
+      let email = booking.bookingId.customerInfo.email.toLocaleLowerCase();
       if (customerMap.has(email)) {
         let customer = customerMap.get(email);
         customer!.totalBookings += 1;
@@ -121,27 +120,11 @@
       }
     });
 
-    data.set([...customerMap.values()].sort((a, b) => b.totalBookings - a.totalBookings));
-  }
+    const customers = [...customerMap.values()].sort((a, b) => b.totalBookings - a.totalBookings);
 
-  function downloadCSV() {
-    let csv = "data:text/csv;charset=utf-8,";
+    console.log(customers.length)
 
-    csv += Object.values(["Datum", "Ordernummer", "Betalat"]).join(",") + "\n";
-
-    data.update((rows) => {
-      rows.forEach((row) => {
-        csv += Object.values([row.completedAt, row.orderNumber, row.finalPaymentAmount]).join(",") + "\n";
-      });
-      return rows;
-    });
-
-    let encodedUri = encodeURI(csv);
-    let link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "report.csv");
-    document.body.appendChild(link);
-    link.click();
+    data.set(customers);
   }
 </script>
 
@@ -162,10 +145,7 @@
 >
   {showFilters ? "Dölj filter" : "Visa filter"}
 </button>
-<button
-  class="p-3 text-base placeholder-gray-600 border rounded-lg focus:shadow-outline"
-  on:click={downloadCSV}
->Ladda ner csv</button>
+
 </div>
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
 {#if showFilters}

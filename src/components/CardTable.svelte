@@ -30,7 +30,8 @@
 
   $: totalUnits = bookings.reduce(
     (units: { [name: string]: number }, booking) => {
-      Object.values(booking.bookingId.priceObject.products).forEach(
+      const products: BookingPriceObject['products'] = booking.bookingId?.priceObject?.products ?? booking.bookingId.detailsPaymentObject
+      Object.values(products).forEach(
         (product) => {
           units[product.productName] =
             (units[product.productName] || 0) + product.quantity;
@@ -132,8 +133,8 @@
                 class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left"
               >
                 <span class="font-bold text-slate-600">
-                  {booking.bookingId.customerInfo.firstName} 
-                  {booking.bookingId.customerInfo.lastName}
+                  {booking.bookingId.customerInfo.firstName ?? ""} 
+                  {booking.bookingId.customerInfo.lastName ?? ""}
                 </span>
               </td>
               <td

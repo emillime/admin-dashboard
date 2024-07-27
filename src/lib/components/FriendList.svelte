@@ -15,7 +15,7 @@
     {#if $bookings}
       Total: {$bookings.length}
       {#each $bookings as booking (booking._id)}
-        <li>{booking.bookingId.customerInfo.firstName}, {booking.bookingId.customerInfo.mobile}</li>
+        <li>{booking.bookingId.customerInfo.firstName ?? ""}, {booking.bookingId.customerInfo.mobile ?? ""}</li>
       {/each}
     {/if}
   </ul>
