@@ -7,6 +7,7 @@
 		faFileInvoiceDollar,
 		type IconDefinition,
 		faUser,
+    faFileLines,
 	} from '@fortawesome/free-solid-svg-icons';
 	import { page } from '$app/stores';
 
@@ -31,6 +32,11 @@
 			text: 'Avstämning',
 			path: '/report'
 		},
+		/*{
+			icon: faFileLines,
+			text: 'Koder',
+			path: '/coupons'
+		},*/
 		{
 			icon: faBriefcase,
 			text: 'Inställningar',

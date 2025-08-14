@@ -6,7 +6,7 @@
   import GanttSchedule from "../../../components/GanttSchedule.svelte";
   import { DateTime } from "luxon";
   import { getTokenFromCookie } from "../../../utils/jwtUtils";
-  import { getAllBookings } from "$lib/api";
+  import { getAllBookings, getSuppliers } from "$lib/api";
   import { onMount } from "svelte";
   import Cleaning from "../../../components/Cleaning.svelte";
   import { currentSupplier } from "../../../stores/stores";
@@ -20,7 +20,7 @@
       .where("endTime")
       .aboveOrEqual(start)
       .and((b) => b.startTime <= end)
-      .and((b) => $currentSupplier != null ? b.supplierId._id === $currentSupplier?._id : true)
+      .and((b) => b.supplierId._id === $currentSupplier?._id)
       .toArray();
   });
 
@@ -37,9 +37,21 @@
     );
   }
 
+  async function initCurrentSupplier() {
+    if ($currentSupplier == null) {
+      const token = getTokenFromCookie() ?? "";
+      const stations = await getSuppliers(token);
+      if ($currentSupplier == null) {
+        console.log("No current supplier set, initializing with first station: ", stations[0]);
+        $currentSupplier = stations[0];
+      }
+    }
+  }
+
   onMount(() => {
     // Not needed because we update all bookings on page reload
     // fetchTodaysBookings();
+    initCurrentSupplier();
   });
 </script>
 

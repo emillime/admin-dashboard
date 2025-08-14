@@ -1,8 +1,9 @@
 type Token = {
+    _id: string,
     name: string,
     email: string,
     userType: string,
-    supplierIds: string[],
+    supplierIds?: string[],
     iat: number,
     exp: number
   }
