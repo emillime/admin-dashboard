@@ -19,3 +19,5 @@ type Coupon = {
     used: number;
     id: string;
 }
+
+type CouponType = 'giftCard' | 'discount'

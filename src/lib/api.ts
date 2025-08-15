@@ -1,11 +1,9 @@
 import { parseJwt } from "../utils/jwtUtils";
 import { localDb } from "$lib/localDb";
 import { DateTime } from "luxon";
-import { get } from 'svelte/store';
-import { currentSupplier } from "../stores/stores";
-
+import { getCurrentSupplierId } from "../utils/supplierHelper";
 const BASE_URL =
-  "https://h2fwzu46j1.execute-api.eu-central-1.amazonaws.com/production";
+  "https://nsf4u0aiqj.execute-api.eu-central-1.amazonaws.com/production";
 const CACHE_NAME = "admin-cache";
 
 async function fetchUseCache(
@@ -77,10 +75,8 @@ export async function getSlots(
   token: string,
   supplierId: string | undefined = undefined
 ): Promise<Slot[]> {
-  const tokenData = parseJwt(token);
-  // TODO: Select correct supplier id
   const url = `${BASE_URL}/admin/slots/${
-    supplierId || get(currentSupplier)?._id || tokenData.supplierIds[0]
+    supplierId || getCurrentSupplierId()
   }`;
 
   const response = await fetchUseCache(url, {
@@ -260,6 +256,43 @@ export async function getTransactions(
 
   if (!response.ok) {
     throw new Error("Failed to fetch transactions");
+  }
+
+  return response.json();
+}
+
+export async function createCoupon(
+  token: string,
+  code: string,
+  couponType: CouponType,
+  discountAmount: string,
+  fromDate: string,
+  toDate: string,
+) {
+  const url = `${BASE_URL}/admin/coupons`;
+
+  const countryId = "63072a22cbb43727095e46b2";
+  const supplierIds = ["62babb55bbf1ffbdefe9eb1b"];
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      code, 
+      couponType, 
+      discountAmount, 
+      fromDate, 
+      toDate,
+      countryId,
+      supplierIds 
+    }),
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create code");
   }
 
   return response.json();
