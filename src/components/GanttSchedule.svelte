@@ -4,6 +4,7 @@
   import { onDestroy, onMount } from "svelte";
   import { getTokenFromCookie } from "../utils/jwtUtils";
   import { DateTime } from "luxon";
+  import { currentSupplier } from "../stores/stores";
   import type {
     SvelteGanttComponent,
     SvelteGanttOptions,
@@ -25,6 +26,27 @@
   let currentTime = DateTime.now().toMillis();
   let intervalId: number;
 
+  async function loadSlots() {
+    if (!$currentSupplier) {
+      return;
+    }
+    const token = getTokenFromCookie() ?? "";
+    const slots = await getSlots(token, $currentSupplier._id);
+    rows = slots.map((slot) => {
+      return {
+        id: Number(slot.slot),
+        enableDragging: false,
+        label: `Slot ${slot.slot}`,
+        height: 50,
+        expanded: false,
+      };
+    });
+  }
+
+  $: if ($currentSupplier) {
+    loadSlots();
+  }
+
   $: tasks = bookings?.map((booking, index) => {
     return (
       {
@@ -36,7 +58,9 @@
         ),
         from: booking.startTime.getTime(),
         to: booking.endTime.getTime(),
-        label: `${booking.bookingId.customerInfo.firstName ?? ""} ${booking.bookingId.customerInfo.lastName ?? ""}`,
+        label: `${booking.bookingId.customerInfo.firstName ?? ""} ${
+          booking.bookingId.customerInfo.lastName ?? ""
+        }`,
         showButton: false,
         enableDragging: false,
         enableResize: false,
@@ -126,17 +150,7 @@
       props: options,
     });
 
-    const token = getTokenFromCookie() ?? "";
-    const slots = await getSlots(token);
-    rows = slots.map((slot) => {
-      return {
-        id: Number(slot.slot),
-        enableDragging: false,
-        label: `Slot ${slot.slot}`,
-        height: 50,
-        expanded: false,
-      };
-    });
+    loadSlots();
 
     setTimeout(() => {
       const ganttBody = document.getElementsByClassName("sg-timeline-body")[0];
