@@ -2,8 +2,8 @@
   import { browser } from "$app/environment";
   import { navigating } from "$app/stores";
   import PillNavbar from "../../components/PillNavbar.svelte";
-  import { getTokenFromCookie, parseJwt } from "../../utils/jwtUtils";
-  import { getAllBookings, getCoupons, updateBookings } from "$lib/api";
+  import { getTokenFromCookie } from "../../utils/jwtUtils";
+  import { getCoupons, updateBookings } from "$lib/api";
   import { getCurrentSupplierId } from "../../utils/supplierHelper";
 
   // Way to redirect to login page if user is not logged in
